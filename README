@@ -4,6 +4,8 @@ Copyright © 2009 Zynga Game Networks.
 
 All .ttf files in this project are from http://www.webpagepublicity.com/free-fonts.html 
 
+Some code comes from Genericrich's answer to this question http://stackoverflow.com/questions/360751/can-i-embed-a-custom-font-in-an-iphone-application
+
 
 TODO:
 - grep "TODO" in Classes/
