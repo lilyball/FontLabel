@@ -7,5 +7,6 @@ All .ttf files in this project are from http://www.webpagepublicity.com/free-fon
 
 TODO:
 - grep "TODO" in Classes/
-
+- add line wrapping
+- add support for markup
 
