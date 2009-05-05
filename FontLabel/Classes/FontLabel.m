@@ -103,6 +103,7 @@ static NSMutableDictionary *fonts;
 	CGDataProviderRelease(fontDataProvider); 
 
 	[fonts setObject:(NSObject*)newFont forKey:filename];
+	CGFontRelease(newFont);
 }
 
 // Return the width of this string in the current font and pointsize
