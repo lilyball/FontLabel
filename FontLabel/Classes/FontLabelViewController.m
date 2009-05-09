@@ -3,6 +3,7 @@
 //  FontLabel
 //
 //  Created by Amanda Wixted on 4/30/09.
+//  Modified by Kevin Ballard on 5/8/09.
 //  Copyright © 2009 Zynga Game Networks 
 //
 //
@@ -22,63 +23,67 @@
 
 #import "FontLabelViewController.h"
 #import "FontLabel.h"
-
+#import "FontLabelStringDrawing.h"
+#import "FontManager.h"
 
 @implementation FontLabelViewController
 
-
-
-
-
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView {
-	
 	[super loadView];
 	
 	[self.view setBackgroundColor:[UIColor blackColor]];
 	
-	CGFloat size = 30.0f; 
-	
-	
-	FontLabel *label = [[FontLabel alloc] initWithPoint:(CGPoint){10, 50} name:@"Paint Boy" size:40.0f color:[UIColor magentaColor] autoframe:YES];
-	[label setString:@"lorem ipsum"];
+	FontLabel *label = [[FontLabel alloc] initWithFrame:CGRectMake(10, 50, 0, 0) fontName:@"Paint Boy" pointSize:40.0f];
+	label.textColor = [UIColor magentaColor];
+	label.text = @"lorem ipsum";
+	[label sizeToFit];
+	label.backgroundColor = nil;
+	label.opaque = NO;
 	[self.view addSubview:label];
 	
-	
-	FontLabel *label2 = [[FontLabel alloc] initWithPoint:(CGPoint){10, label.frame.origin.y + label.frame.size.height + 10} name:@"Scissor Cuts" size:24.0f color:[UIColor greenColor] autoframe:YES];
-	[label2 setString:@"commanda hearts opensource!"];
+	FontLabel *label2 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label.frame) + 10, 0, 0)
+													  fontName:@"Scissor Cuts" pointSize:24.0f];
+	label2.textColor = [UIColor greenColor];
+	label2.text = @"commanda hearts opensource!";
+	[label2 sizeToFit];
+	label2.backgroundColor = nil;
+	label2.opaque = NO;
 	[self.view addSubview:label2];
 	
-	
-	FontLabel *label3 = [[FontLabel alloc] initWithPoint:(CGPoint){10, label2.frame.origin.y + label2.frame.size.height + 10} name:@"Abberancy" size:size color:[UIColor orangeColor] autoframe:YES];
-	[label3 setString:@"Troy RULEZ!"];
+	FontLabel *label3 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label2.frame) + 10, 0, 0)
+												  fontName:@"Abberancy" pointSize:30.0f];
+	label3.textColor = [UIColor orangeColor];
+	label3.text = @"Troy RULEZ!";
+	[label3 sizeToFit];
+	label3.backgroundColor = nil;
+	label3.opaque = NO;
 	[self.view addSubview:label3];
 	
-	FontLabel *label4 = [[FontLabel alloc] initWithPoint:(CGPoint){10, label3.frame.origin.y + label3.frame.size.height + 10} name:@"Schwarzwald Regular" size:size color:[UIColor yellowColor] autoframe:YES];
-	[label4 setString:@"your name here"];
+	FontLabel *label4 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label3.frame) + 10, 0, 0)
+												  fontName:@"Schwarzwald Regular" pointSize:30.0f];
+	label4.textColor = [UIColor yellowColor];
+	label4.text = @"your name here";
+	[label4 sizeToFit];
+	label4.backgroundColor = nil;
+	label4.opaque = NO;
 	[self.view addSubview:label4];
 	
-	
-	FontLabel *label5 = [[FontLabel alloc] initWithFrame:(CGRect){10, label4.frame.origin.y + label4.frame.size.height + 10, 300, 100} name:@"Schwarzwald Regular" size:20.0f color:[UIColor blackColor] justify:kCenter];
-	[label5 setString:@"centered in a frame"];
+	FontLabel *label5 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label4.frame) + 10, 300, 100)
+												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
+	label5.textColor = [UIColor blackColor];
+	label5.text = @"centered in a frame";
+	label5.textAlignment = UITextAlignmentCenter;
 	label5.backgroundColor = [UIColor greenColor];
 	[self.view addSubview:label5];
 	
-	
-	FontLabel *label6 = [[FontLabel alloc] initWithFrame:(CGRect){10, label5.frame.origin.y + label5.frame.size.height + 10, 300, 100} name:@"Schwarzwald Regular" size:20.0f color:[UIColor magentaColor] justify:kRight];
-	[label6 setString:@"right justified"];
+	FontLabel *label6 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label5.frame) + 10, 300, 100)
+												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
+	label6.textColor = [UIColor magentaColor];
+	label6.text = @"right justified";
+	label6.textAlignment = UITextAlignmentRight;
 	label6.backgroundColor = [UIColor blueColor];
 	[self.view addSubview:label6];
 }
-
-
-
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
-    // Release anything that's not essential, such as cached data
-}
-
 
 - (void)dealloc {
     [super dealloc];

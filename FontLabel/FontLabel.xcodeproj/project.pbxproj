@@ -15,7 +15,9 @@
 		2899E5220DE3E06400AC0155 /* FontLabelViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2899E5210DE3E06400AC0155 /* FontLabelViewController.xib */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* FontLabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* FontLabelViewController.m */; };
-		902B007F0FAA47B500BDEBD0 /* FontLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 902B007E0FAA47B500BDEBD0 /* FontLabel.m */; };
+		433B505F0FB50365000B10FB /* FontLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 433B505E0FB50365000B10FB /* FontLabel.m */; };
+		433B50630FB5036D000B10FB /* FontLabelStringDrawing.m in Sources */ = {isa = PBXBuildFile; fileRef = 433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */; };
+		433B50660FB50375000B10FB /* FontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 433B50650FB50375000B10FB /* FontManager.m */; };
 		902B00900FAA484500BDEBD0 /* A Damn Mess.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 902B008A0FAA484500BDEBD0 /* A Damn Mess.ttf */; };
 		902B00910FAA484500BDEBD0 /* Abberancy.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 902B008B0FAA484500BDEBD0 /* Abberancy.ttf */; };
 		902B00920FAA484500BDEBD0 /* Abduction.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 902B008C0FAA484500BDEBD0 /* Abduction.ttf */; };
@@ -37,9 +39,13 @@
 		28D7ACF70DDB3853001CB0EB /* FontLabelViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontLabelViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* FontLabel_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontLabel_Prefix.pch; sourceTree = "<group>"; };
+		433B505D0FB50365000B10FB /* FontLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontLabel.h; sourceTree = "<group>"; };
+		433B505E0FB50365000B10FB /* FontLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontLabel.m; sourceTree = "<group>"; };
+		433B50610FB5036D000B10FB /* FontLabelStringDrawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontLabelStringDrawing.h; sourceTree = "<group>"; };
+		433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontLabelStringDrawing.m; sourceTree = "<group>"; };
+		433B50640FB50375000B10FB /* FontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontManager.h; sourceTree = "<group>"; };
+		433B50650FB50375000B10FB /* FontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontManager.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		902B007D0FAA47B500BDEBD0 /* FontLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontLabel.h; sourceTree = "<group>"; };
-		902B007E0FAA47B500BDEBD0 /* FontLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontLabel.m; sourceTree = "<group>"; };
 		902B008A0FAA484500BDEBD0 /* A Damn Mess.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "A Damn Mess.ttf"; sourceTree = "<group>"; };
 		902B008B0FAA484500BDEBD0 /* Abberancy.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Abberancy.ttf; sourceTree = "<group>"; };
 		902B008C0FAA484500BDEBD0 /* Abduction.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Abduction.ttf; sourceTree = "<group>"; };
@@ -65,8 +71,12 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				902B007D0FAA47B500BDEBD0 /* FontLabel.h */,
-				902B007E0FAA47B500BDEBD0 /* FontLabel.m */,
+				433B505D0FB50365000B10FB /* FontLabel.h */,
+				433B505E0FB50365000B10FB /* FontLabel.m */,
+				433B50610FB5036D000B10FB /* FontLabelStringDrawing.h */,
+				433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */,
+				433B50640FB50375000B10FB /* FontManager.h */,
+				433B50650FB50375000B10FB /* FontManager.m */,
 				1D3623240D0F684500981E51 /* FontLabelAppDelegate.h */,
 				1D3623250D0F684500981E51 /* FontLabelAppDelegate.m */,
 				28D7ACF60DDB3853001CB0EB /* FontLabelViewController.h */,
@@ -193,7 +203,9 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* FontLabelAppDelegate.m in Sources */,
 				28D7ACF80DDB3853001CB0EB /* FontLabelViewController.m in Sources */,
-				902B007F0FAA47B500BDEBD0 /* FontLabel.m in Sources */,
+				433B505F0FB50365000B10FB /* FontLabel.m in Sources */,
+				433B50630FB5036D000B10FB /* FontLabelStringDrawing.m in Sources */,
+				433B50660FB50375000B10FB /* FontManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -22,8 +22,7 @@
 
 #import "FontLabelAppDelegate.h"
 #import "FontLabelViewController.h"
-#import "FontLabel.h"
-
+#import "FontManager.h"
 
 @implementation FontLabelAppDelegate
 
@@ -31,14 +30,13 @@
 @synthesize viewController;
 
 
-- (void)applicationDidFinishLaunching:(UIApplication *)application {    
-    
-	
-	[FontLabel loadFont:@"Paint Boy"];
-	[FontLabel loadFont:@"A Damn Mess"];
-	[FontLabel loadFont:@"Scissor Cuts"];
-	[FontLabel loadFont:@"Abberancy"];
-	[FontLabel loadFont:@"Schwarzwald Regular"];
+- (void)applicationDidFinishLaunching:(UIApplication *)application {
+	[[FontManager sharedManager] loadFont:@"A Damn Mess"];
+	[[FontManager sharedManager] loadFont:@"Abberancy"];
+	[[FontManager sharedManager] loadFont:@"Abduction"];
+	[[FontManager sharedManager] loadFont:@"Paint Boy"];
+	[[FontManager sharedManager] loadFont:@"Schwarzwald Regular"];
+	[[FontManager sharedManager] loadFont:@"Scissor Cuts"];
 	
     // Override point for customization after app launch    
     [window addSubview:viewController.view];
