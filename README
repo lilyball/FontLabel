@@ -1,14 +1,64 @@
 Copyright © 2009 Zynga Game Networks.
 
+All .ttf files in this project are from http://www.webpagepublicity.com/free-fonts.html
 
+This project provides 3 classes which are used to render text in custom fonts.
 
-All .ttf files in this project are from http://www.webpagepublicity.com/free-fonts.html 
+FontManager
+-----------
 
-Some code comes from Genericrich's answer to this question http://stackoverflow.com/questions/360751/can-i-embed-a-custom-font-in-an-iphone-application
+FontManager is used to cache CGFontRef objects so you can look them up by name,
+the same way that UIFont caches its internal font objects by name.
 
+### Usage:
 
-TODO:
+Call `-[FontManager loadFont:]` once for each font you care about, generally as part
+of your application startup. You then look up the CGFontRef objects later
+with `-[FontManager fontWithName:]`.
+
+NSString (FontLabelStringDrawing)
+---------------------------------
+
+This category is modeled after NSString (UIStringDrawing) and provides the basic mechanism
+for drawing text in a given CGFontRef. It differs in two key areas from UIStringDrawing:
+
+* When the glyph bounding boxes extend past the advances (for example, in Zapfino or Abberancy)
+  UIStringDrawing will report the size incorrectly but FontLabelStringDrawing will account
+  for the entire bounding box of the last glyph.
+  Note: This has only been tested on left-to-right text drawing.
+* UIFont reports a larger ascender for the system font (Helvetica) than FontLabelStringDrawing.
+  I cannot figure out why this is. This means UIStringDrawing/UILabel will size any text
+  rendered in Helvetica with a taller bounding box than FontLabelStringDrawing. I have not seen
+  this behavior on any other fonts.
+
+Usage should be the same as the corresponding methods from UIStringDrawing.
+
+Note: line breaks are not rendered properly using this category.
+
+FontLabel
+---------
+
+This is a subclass of UILabel that draws text using a CGFontRef/pointSize pair instead
+of a UIFont. It uses FontLabelStringDrawing internally to do the heavy lifting. At the moment
+it does not support wrapping or hard line breaks. `-sizeToFit` works, as do the
+standard `textAlignment`/`textColor` properties.
+
+The following properties are ignored:
+
+* adjustsFontSizeToFitWidth
+* baselineAdjustment
+* enabled
+* font (use cgFont/pointSize instead)
+* highlighted
+* highlightedTextColor
+* lineBreakMode
+* minimumFontSize
+* numberOfLines
+* shadowColor
+* shadowOffset
+
+## TODO
 - grep "TODO" in Classes/
 - add line wrapping
 - add support for markup
-
+- support more properties from UILabel
