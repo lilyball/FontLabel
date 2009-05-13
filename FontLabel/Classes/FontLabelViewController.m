@@ -4,7 +4,7 @@
 //
 //  Created by Amanda Wixted on 4/30/09.
 //  Modified by Kevin Ballard on 5/8/09.
-//  Copyright © 2009 Zynga Game Networks 
+//  Copyright © 2009 Zynga Game Networks
 //
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

@@ -3,7 +3,7 @@
 //  FontLabel
 //
 //  Created by Amanda Wixted on 4/30/09.
-//  Copyright © 2009 Zynga Game Networks 
+//  Copyright © 2009 Zynga Game Networks
 //
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
