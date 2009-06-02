@@ -20,16 +20,12 @@ NSString (FontLabelStringDrawing)
 ---------------------------------
 
 This category is modeled after NSString (UIStringDrawing) and provides the basic mechanism
-for drawing text in a given CGFontRef. It differs in two key areas from UIStringDrawing:
+for drawing text in a given CGFontRef. It differs in one key area from UIStringDrawing:
 
-* When the glyph bounding boxes extend past the advances (for example, in Zapfino or Abberancy)
-  UIStringDrawing will report the size incorrectly but FontLabelStringDrawing will account
-  for the entire bounding box of the last glyph.
-  Note: This has only been tested on left-to-right text drawing.
 * UIFont reports a larger ascender for the system font (Helvetica) than FontLabelStringDrawing.
   I cannot figure out why this is. This means UIStringDrawing/UILabel will size any text
   rendered in Helvetica with a taller bounding box than FontLabelStringDrawing. I have not seen
-  this behavior on any other fonts.
+  this behavior on any other fonts. I suspect it is a hard-coded edge case in UIFont.
 
 Usage should be the same as the corresponding methods from UIStringDrawing.
 

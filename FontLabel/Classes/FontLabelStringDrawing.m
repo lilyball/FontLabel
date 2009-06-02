@@ -115,11 +115,6 @@ static CGSize mapGlyphsToAdvancesInFont(CGFontRef font, CGFloat pointSize, size_
 		for (int i = 0; i < n; i++) {
 			width += outAdvances[i];
 		}
-		// check to make sure the last glyph doesn't have a larger bounding box than advance
-		CGRect bbox;
-		if (CGFontGetGlyphBBoxes(font, &glyphs[n-1], 1, &bbox) && CGRectGetMaxX(bbox) > outAdvances[n-1]) {
-			width += CGRectGetMaxX(bbox) - outAdvances[n-1];
-		}
 		
 		CGFloat ratio = (pointSize/CGFontGetUnitsPerEm(font));
 		CGFloat ascender = ceilf(CGFontGetAscent(font) * ratio);
