@@ -24,7 +24,9 @@
 // read the cmap table from the font
 // we only know how to understand some of the table formats at the moment
 // if we don't know how to understand it, we use the magic number hack
-static void mapCharactersToGlyphsInFont(CGFontRef font, size_t n, unichar characters[], CGGlyph outGlyphs[]) {
+// The convertNewlines argument specifies whether newlines should be treated as spaces.
+// This is odd, but it mirrors -sizeWithFont: and -drawAtPoint:withFont:
+static void mapCharactersToGlyphsInFont(CGFontRef font, size_t n, unichar characters[], CGGlyph outGlyphs[], BOOL convertNewlines) {
 	CFDataRef cmapTable = CGFontCopyTableForTag(font, 'cmap');
 	NSCAssert1(cmapTable != NULL, @"CGFontCopyTableForTag returned NULL for 'cmap' tag in font %@",
 			   (font ? [(id)CFCopyDescription(font) autorelease] : @"(null)"));
@@ -63,8 +65,9 @@ static void mapCharactersToGlyphsInFont(CGFontRef font, size_t n, unichar charac
 			UInt16 *idRangeOffsets = (UInt16*)&((UInt8*)idDeltas)[segCountX2];
 			//UInt16 *glyphIndexArray = &idRangeOffsets[segCountX2];
 			
-			for (int i = 0; i < n; i++) {
+			for (NSUInteger i = 0; i < n; i++) {
 				unichar c = characters[i];
+				if (convertNewlines && c == (unichar)'\n') c = (unichar)' ';
 				UInt16 segOffset;
 				BOOL foundSegment = NO;
 				for (segOffset = 0; segOffset < segCountX2; segOffset += 2) {
@@ -99,9 +102,11 @@ static void mapCharactersToGlyphsInFont(CGFontRef font, size_t n, unichar charac
 		}
 	}
 	if (!decoded) {
-		for (int i = 0; i < n; i++) { 
+		for (NSUInteger i = 0; i < n; i++) { 
+			unichar c = characters[i];
+			if (convertNewlines && c == (unichar)'\n') c = (unichar)' ';
 			// 29 is some weird magic number that works for lots of fonts
-			outGlyphs[i] = characters[i] - 29;
+			outGlyphs[i] = c - 29;
 		}
 	}
 	CFRelease(cmapTable);
@@ -130,17 +135,17 @@ static CGSize mapGlyphsToAdvancesInFont(CGFontRef font, CGFloat pointSize, size_
 
 @implementation NSString (FontLabelStringDrawing)
 - (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize {
-	// Create an array of Glyph's the size of text that will be drawn. 
-	CGGlyph glyphs[[self length]];
+	NSUInteger len = [self length];
 	
 	// Map the characters to glyphs
-	unichar characters[[self length]];
+	unichar characters[len];
+	CGGlyph glyphs[len];
 	[self getCharacters:characters];
-	mapCharactersToGlyphsInFont(font, [self length], characters, glyphs);
+	mapCharactersToGlyphsInFont(font, len, characters, glyphs, YES);
 	
 	// Get the advances for the glyphs
-	int advances[[self length]];
-	CGSize retVal = mapGlyphsToAdvancesInFont(font, pointSize, [self length], glyphs, advances, NULL);
+	int advances[len];
+	CGSize retVal = mapGlyphsToAdvancesInFont(font, pointSize, len, glyphs, advances, NULL);
 	
 	return CGSizeMake(ceilf(retVal.width), ceilf(retVal.height));
 }
@@ -156,7 +161,7 @@ static CGSize mapGlyphsToAdvancesInFont(CGFontRef font, CGFloat pointSize, size_
 	// Map the characters to glyphs
 	unichar characters[[self length]];
 	[self getCharacters:characters];
-	mapCharactersToGlyphsInFont(font, [self length], characters, glyphs);
+	mapCharactersToGlyphsInFont(font, [self length], characters, glyphs, YES);
 	
 	// Get the advances for the glyphs
 	int advances[[self length]];
