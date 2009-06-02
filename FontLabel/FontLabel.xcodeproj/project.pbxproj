@@ -71,12 +71,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				433B505D0FB50365000B10FB /* FontLabel.h */,
-				433B505E0FB50365000B10FB /* FontLabel.m */,
-				433B50610FB5036D000B10FB /* FontLabelStringDrawing.h */,
-				433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */,
-				433B50640FB50375000B10FB /* FontManager.h */,
-				433B50650FB50375000B10FB /* FontManager.m */,
+				430742320FD5D5BE00A9FFAB /* FontLabel */,
 				1D3623240D0F684500981E51 /* FontLabelAppDelegate.h */,
 				1D3623250D0F684500981E51 /* FontLabelAppDelegate.m */,
 				28D7ACF60DDB3853001CB0EB /* FontLabelViewController.h */,
@@ -138,6 +133,19 @@
 				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		430742320FD5D5BE00A9FFAB /* FontLabel */ = {
+			isa = PBXGroup;
+			children = (
+				433B505D0FB50365000B10FB /* FontLabel.h */,
+				433B505E0FB50365000B10FB /* FontLabel.m */,
+				433B50610FB5036D000B10FB /* FontLabelStringDrawing.h */,
+				433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */,
+				433B50640FB50375000B10FB /* FontManager.h */,
+				433B50650FB50375000B10FB /* FontManager.m */,
+			);
+			name = FontLabel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
