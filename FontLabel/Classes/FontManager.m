@@ -59,7 +59,11 @@ static FontManager *sharedFontManager = nil;
 }
 
 - (CGFontRef)fontWithName:(NSString *)filename {
-	return (CGFontRef)CFDictionaryGetValue(fonts, filename);
+	CGFontRef font = (CGFontRef)CFDictionaryGetValue(fonts, filename);
+	if (font == NULL && [self loadFont:filename]) {
+		font = (CGFontRef)CFDictionaryGetValue(fonts, filename);
+	}
+	return font;
 }
 
 - (void)dealloc {
