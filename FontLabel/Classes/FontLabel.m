@@ -49,7 +49,7 @@
 	UIRectClip(rect);
 	// this method is documented as setting the text color for us, but that doesn't appear to be the case
 	[self.textColor setFill];
-	CGSize size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize constrainedToSize:self.bounds.size];
+	CGSize size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize constrainedToSize:rect.size];
 	CGPoint point = rect.origin;
 	point.y += MAX(rect.size.height - size.height, 0.0f) / 2.0f;
 	rect = (CGRect){point, CGSizeMake(rect.size.width, size.height)};
@@ -58,7 +58,7 @@
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds limitedToNumberOfLines:(NSInteger)numberOfLines {
-	bounds.size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize];
+	bounds.size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize constrainedToSize:bounds.size];
 	return bounds;
 }
 
