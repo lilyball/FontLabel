@@ -14,7 +14,8 @@ the same way that UIFont caches its internal font objects by name.
 
 Call `-[FontManager loadFont:]` once for each font you care about, generally as part
 of your application startup. You then look up the CGFontRef objects later
-with `-[FontManager fontWithName:]`.
+with `-[FontManager fontWithName:]`. If you don't call `-loadFont:`, it will be called
+automatically for you when you call `-fontWithName:`.
 
 NSString (FontLabelStringDrawing)
 ---------------------------------
@@ -25,7 +26,8 @@ for drawing text in a given CGFontRef. It differs in three key areas from UIStri
 * Wrapping of sized/drawn strings properly character-wraps really long words that cannot fit
   on a single line by themselves even when the lineBreakMode is UILineBreakModeWordWrap.
   UIStringDrawing appears to behave incorrectly under the same circumstances.
-* Only UILineBreakModeWordWrap is supported at the moment.
+* Only some line break modes are supported at the moment.
+  Notably, Clip and Head/Middle truncation are not supported.
 * UIFont reports a larger ascender for the system font (Helvetica) than FontLabelStringDrawing.
   I cannot figure out why this is. This means UIStringDrawing/UILabel will size any text
   rendered in Helvetica with a taller bounding box than FontLabelStringDrawing. I have not seen
@@ -38,7 +40,8 @@ FontLabel
 
 This is a subclass of UILabel that draws text using a CGFontRef/pointSize pair instead
 of a UIFont. It uses FontLabelStringDrawing internally to do the heavy lifting.
-Word wrapping and `-sizeToFit` work, as do the standard `textAlignment`/`textColor` properties.
+Wrapping, tail truncation, and `-sizeToFit` work, as do the standard
+`textAlignment`/`textColor` properties.
 
 The following properties are ignored:
 
@@ -48,7 +51,6 @@ The following properties are ignored:
 * font (use cgFont/pointSize instead)
 * highlighted
 * highlightedTextColor
-* lineBreakMode
 * minimumFontSize
 * numberOfLines
 * shadowColor
@@ -56,6 +58,5 @@ The following properties are ignored:
 
 ## TODO
 - grep "TODO" in Classes/
-- add line wrapping
 - add support for markup
 - support more properties from UILabel

@@ -54,7 +54,7 @@
 	point.y += MAX(rect.size.height - size.height, 0.0f) / 2.0f;
 	rect = (CGRect){point, CGSizeMake(rect.size.width, size.height)};
 	[self.text drawInRect:rect withCGFont:self.cgFont pointSize:self.pointSize
-			lineBreakMode:UILineBreakModeWordWrap alignment:self.textAlignment];
+			lineBreakMode:self.lineBreakMode alignment:self.textAlignment];
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds limitedToNumberOfLines:(NSInteger)numberOfLines {
