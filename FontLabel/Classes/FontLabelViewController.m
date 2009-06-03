@@ -71,7 +71,7 @@
 	FontLabel *label5 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label4.frame) + 10, 300, 100)
 												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
 	label5.textColor = [UIColor blackColor];
-	label5.text = @"centered in a frame";
+	label5.text = @"centered in a frame.\nthis is line two. Long lines should wrap";
 	label5.textAlignment = UITextAlignmentCenter;
 	label5.backgroundColor = [UIColor greenColor];
 	[self.view addSubview:label5];
@@ -79,7 +79,7 @@
 	FontLabel *label6 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label5.frame) + 10, 300, 100)
 												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
 	label6.textColor = [UIColor magentaColor];
-	label6.text = @"right justified";
+	label6.text = @"right justified.\nThis is line two. Long lines should wrap";
 	label6.textAlignment = UITextAlignmentRight;
 	label6.backgroundColor = [UIColor blueColor];
 	[self.view addSubview:label6];

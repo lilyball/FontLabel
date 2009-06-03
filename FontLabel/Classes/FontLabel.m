@@ -49,21 +49,12 @@
 	UIRectClip(rect);
 	// this method is documented as setting the text color for us, but that doesn't appear to be the case
 	[self.textColor setFill];
-	CGSize size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize];
+	CGSize size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize constrainedToSize:self.bounds.size];
 	CGPoint point = rect.origin;
-	switch (self.textAlignment) {
-		case UITextAlignmentLeft:
-			// included here to satisfy an optional compiler warning
-			break;
-		case UITextAlignmentCenter:
-			point.x += (rect.size.width - size.width) / 2.0f;
-			break;
-		case UITextAlignmentRight:
-			point.x += (rect.size.width - size.width);
-			break;
-	}
 	point.y += MAX(rect.size.height - size.height, 0.0f) / 2.0f;
-	[self.text drawAtPoint:point withCGFont:self.cgFont pointSize:self.pointSize];
+	rect = (CGRect){point, CGSizeMake(rect.size.width, size.height)};
+	[self.text drawInRect:rect withCGFont:self.cgFont pointSize:self.pointSize
+			lineBreakMode:UILineBreakModeWordWrap alignment:self.textAlignment];
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds limitedToNumberOfLines:(NSInteger)numberOfLines {

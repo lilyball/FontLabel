@@ -27,4 +27,8 @@
 - (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size
 		   lineBreakMode:(UILineBreakMode)lineBreakMode;
 - (CGSize)drawAtPoint:(CGPoint)point withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize;
+- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize;
+- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize lineBreakMode:(UILineBreakMode)lineBreakMode;
+- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize
+	   lineBreakMode:(UILineBreakMode)lineBreakMode alignment:(UITextAlignment)alignment;
 @end

@@ -162,6 +162,113 @@ static CGSize mapGlyphsToAdvancesInFont(CGFontRef font, CGFloat pointSize, size_
 	return retVal;
 }
 
+static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string, CGFontRef font, CGFloat pointSize,
+											  CGSize constrainedSize, UILineBreakMode lineBreakMode, UITextAlignment alignment) {
+	NSUInteger len = [string length];
+	CGPoint drawPoint = CGPointZero;
+	CGContextRef ctx = (performDraw ? UIGraphicsGetCurrentContext() : NULL);
+	
+	// Map the characters to glyphs
+	// split on hard newlines and calculate each run separately
+	unichar characters[len];
+	[string getCharacters:characters];
+	fontTable *table = readFontTableFromFont(font);
+	CGSize retVal = CGSizeZero;
+	CGFloat ascender = 0;
+	NSUInteger idx = 0;
+	while (idx < len) {
+		if (ascender > 0 && retVal.height + ascender > constrainedSize.height) break;
+		unichar *charPtr = &characters[idx];
+		NSUInteger i;
+		for (i = idx; i < len && characters[i] != (unichar)'\n'; i++);
+		size_t rowLen = i - idx;
+		idx = i + 1; // + 1 skips the newline, if that's where we stopped
+		CGGlyph glyphs[rowLen];
+		mapCharactersToGlyphsInFont(table, rowLen, charPtr, glyphs, NO);
+		// Get the advances for the glyphs
+		int advances[rowLen];
+		CGFloat widths[rowLen];
+		CGSize rowSize = mapGlyphsToAdvancesInFont(font, pointSize, rowLen, glyphs, advances, widths, (ascender > 0 ? NULL : &ascender));
+		NSUInteger rowIdx = 0;
+		while (rowSize.width > constrainedSize.width) {
+			// wrap to a new line
+			CGFloat curWidth = 0;
+			CGFloat skipWidth = 0;
+			NSUInteger lastSpace = 0;
+			CGFloat lastSpaceWidth = 0;
+			NSUInteger softRowLen = 0;
+			NSUInteger newRowIdx = rowIdx;
+			for (NSUInteger j = rowIdx; j < rowLen; j++) {
+				CGFloat newWidth = curWidth + widths[j];
+				if (newWidth > constrainedSize.width) {
+					// we've gone over the limit now
+					// TODO: observe lineBreakMode
+					// for the time being, just always treat it as a word wrap
+					if (lastSpace == 0) {
+						// this is the first word, fall back to character wrap instead
+						newRowIdx = j;
+						softRowLen = newRowIdx - rowIdx;
+					} else {
+						newRowIdx = lastSpace;
+						softRowLen = newRowIdx - rowIdx;
+						while (newRowIdx < rowLen && charPtr[newRowIdx] == (unichar)' ') {
+							skipWidth += widths[newRowIdx];
+							newRowIdx++;
+						}
+						curWidth = lastSpaceWidth;
+					}
+					break;
+				} else if (charPtr[j] == (unichar)' ') {
+					lastSpace = j;
+					lastSpaceWidth = curWidth;
+				}
+				curWidth = newWidth;
+			}
+			retVal.width = MAX(retVal.width, curWidth);
+			retVal.height += rowSize.height;
+			rowSize.width -= (curWidth + skipWidth);
+			if (performDraw) {
+				switch (alignment) {
+					case UITextAlignmentLeft:
+						drawPoint.x = 0;
+						break;
+					case UITextAlignmentCenter:
+						drawPoint.x = (constrainedSize.width - curWidth) / 2.0f;
+						break;
+					case UITextAlignmentRight:
+						drawPoint.x = constrainedSize.width - curWidth;
+						break;
+				}
+				CGContextShowGlyphsAtPoint(ctx, drawPoint.x, drawPoint.y + ascender, &glyphs[rowIdx], softRowLen);
+				drawPoint.y += rowSize.height;
+			}
+			rowIdx = newRowIdx;
+		}
+		if (rowSize.width > 0) {
+			retVal.width = MAX(retVal.width, rowSize.width);
+			retVal.height += rowSize.height;
+			if (performDraw) {
+				switch (alignment) {
+					case UITextAlignmentLeft:
+						drawPoint.x = 0;
+						break;
+					case UITextAlignmentCenter:
+						drawPoint.x = (constrainedSize.width - rowSize.width) / 2.0f;
+						break;
+					case UITextAlignmentRight:
+						drawPoint.x = constrainedSize.width - rowSize.width;
+						break;
+				}
+				CGContextShowGlyphsAtPoint(ctx, drawPoint.x, drawPoint.y + ascender, &glyphs[rowIdx], rowLen - rowIdx);
+				drawPoint.y += rowSize.height;
+			}
+		}
+	}
+	freeFontTable(table);
+	
+	return retVal;
+}
+
 @implementation NSString (FontLabelStringDrawing)
 - (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize {
 	NSUInteger len = [self length];
@@ -199,63 +306,8 @@ static CGSize mapGlyphsToAdvancesInFont(CGFontRef font, CGFloat pointSize, size_
 // at the moment, only UILineBreakModeWordWrap is supported
 - (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size
 		   lineBreakMode:(UILineBreakMode)lineBreakMode {
-	NSUInteger len = [self length];
-	
-	// Map the characters to glyphs
-	// split on hard newlines and calculate each run separately
-	unichar characters[len];
-	[self getCharacters:characters];
-	fontTable *table = readFontTableFromFont(font);
-	CGSize retVal = CGSizeZero;
-	CGFloat ascender = 0;
-	NSUInteger idx = 0;
-	while (idx < len) {
-		if (ascender > 0 && retVal.height + ascender > size.height) break;
-		unichar *charPtr = &characters[idx];
-		NSUInteger i;
-		for (i = idx; i < len && characters[i] != (unichar)'\n'; i++);
-		size_t rowLen = i - idx;
-		CGGlyph glyphs[rowLen];
-		mapCharactersToGlyphsInFont(table, rowLen, charPtr, glyphs, NO);
-		// Get the advances for the glyphs
-		int advances[rowLen];
-		CGFloat widths[rowLen];
-		CGSize rowSize = mapGlyphsToAdvancesInFont(font, pointSize, rowLen, glyphs, advances, widths, (ascender > 0 ? NULL : &ascender));
-		NSUInteger rowIdx = 0;
-		while (rowSize.width > size.width) {
-			// wrap to a new line
-			CGFloat curWidth = 0;
-			NSUInteger lastSpace = 0;
-			for (NSUInteger j = rowIdx; j < rowLen; j++) {
-				curWidth += widths[j];
-				if (curWidth > size.width) {
-					// we've gone over the limit now
-					// TODO: observe lineBreakMode
-					// for the time being, just always treat it as a word wrap
-					if (lastSpace == 0) {
-						// this is the first word, fall back to character wrap instead
-						rowIdx = j;
-					} else {
-						rowIdx = lastSpace;
-						while (rowIdx < rowLen && charPtr[rowIdx] == (unichar)' ') rowIdx++;
-					}
-					break;
-				} else if (charPtr[j] == (unichar)' ') {
-					lastSpace = j;
-				}
-			}
-			retVal.width = MAX(retVal.width, curWidth);
-			retVal.height += rowSize.height;
-			rowSize.width -= curWidth;
-		}
-		if (rowSize.width > 0) {
-			retVal.width = MAX(retVal.width, rowSize.width);
-			retVal.height += rowSize.height;
-		}
-	}
-	freeFontTable(table);
-	
-	return CGSizeMake(ceilf(retVal.width), ceilf(retVal.height));
+	size = drawOrSizeTextConstrainedToSize(NO, self, font, pointSize, size, lineBreakMode, UITextAlignmentLeft);
+	return CGSizeMake(ceilf(size.width), ceilf(size.height));
 }
 
 - (CGSize)drawAtPoint:(CGPoint)point withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize {
@@ -279,11 +331,42 @@ static CGSize mapGlyphsToAdvancesInFont(CGFontRef font, CGFloat pointSize, size_
 	CGSize retVal = mapGlyphsToAdvancesInFont(font, pointSize, [self length], glyphs, advances, NULL, &ascender);
 	
 	// flip it upside-down because our 0,0 is upper-left, whereas ttfs are for screens where 0,0 is lower-left
-	CGAffineTransform textTransform = CGAffineTransformMake(1.0, 0.0, 0.0, -1.0, 0.0, 0.0);
+	CGAffineTransform textTransform = CGAffineTransformMakeScale(1.0, -1.0);
 	CGContextSetTextMatrix(ctx, textTransform);
 	
 	CGContextSetTextDrawingMode(ctx, kCGTextFill);
 	CGContextShowGlyphsAtPoint(ctx, point.x, point.y + ascender, glyphs, [self length]);
 	return retVal;
+}
+
+- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize {
+	return [self drawInRect:rect withCGFont:font pointSize:pointSize lineBreakMode:UILineBreakModeWordWrap];
+}
+
+- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize lineBreakMode:(UILineBreakMode)lineBreakMode {
+	return [self drawInRect:rect withCGFont:font pointSize:pointSize lineBreakMode:lineBreakMode alignment:UITextAlignmentLeft];
+}
+
+- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize
+	   lineBreakMode:(UILineBreakMode)lineBreakMode alignment:(UITextAlignment)alignment {
+	CGContextRef ctx = UIGraphicsGetCurrentContext();
+	
+	CGContextSaveGState(ctx);
+	
+	CGContextSetFont(ctx, font);
+	CGContextSetFontSize(ctx, pointSize);
+	
+	// flip it upside-down because our 0,0 is upper-left, whereas ttfs are for screens where 0,0 is lower-left
+	CGAffineTransform textTransform = CGAffineTransformMake(1.0, 0.0, 0.0, -1.0, 0.0, 0.0);
+	CGContextSetTextMatrix(ctx, textTransform);
+	
+	CGContextTranslateCTM(ctx, rect.origin.x, rect.origin.y);
+	
+	CGContextSetTextDrawingMode(ctx, kCGTextFill);
+	CGSize size = drawOrSizeTextConstrainedToSize(YES, self, font, pointSize, rect.size, lineBreakMode, alignment);
+	
+	CGContextRestoreGState(ctx);
+	
+	return size;
 }
 @end

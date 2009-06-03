@@ -37,9 +37,8 @@ FontLabel
 ---------
 
 This is a subclass of UILabel that draws text using a CGFontRef/pointSize pair instead
-of a UIFont. It uses FontLabelStringDrawing internally to do the heavy lifting. At the moment
-it does not support wrapping. `-sizeToFit` works, as do the
-standard `textAlignment`/`textColor` properties.
+of a UIFont. It uses FontLabelStringDrawing internally to do the heavy lifting.
+Word wrapping and `-sizeToFit` work, as do the standard `textAlignment`/`textColor` properties.
 
 The following properties are ignored:
 
