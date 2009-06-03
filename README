@@ -20,8 +20,12 @@ NSString (FontLabelStringDrawing)
 ---------------------------------
 
 This category is modeled after NSString (UIStringDrawing) and provides the basic mechanism
-for drawing text in a given CGFontRef. It differs in one key area from UIStringDrawing:
+for drawing text in a given CGFontRef. It differs in three key areas from UIStringDrawing:
 
+* Wrapping of sized/drawn strings properly character-wraps really long words that cannot fit
+  on a single line by themselves even when the lineBreakMode is UILineBreakModeWordWrap.
+  UIStringDrawing appears to behave incorrectly under the same circumstances.
+* Only UILineBreakModeWordWrap is supported at the moment.
 * UIFont reports a larger ascender for the system font (Helvetica) than FontLabelStringDrawing.
   I cannot figure out why this is. This means UIStringDrawing/UILabel will size any text
   rendered in Helvetica with a taller bounding box than FontLabelStringDrawing. I have not seen
@@ -29,14 +33,12 @@ for drawing text in a given CGFontRef. It differs in one key area from UIStringD
 
 Usage should be the same as the corresponding methods from UIStringDrawing.
 
-Note: line breaks are not rendered properly using this category.
-
 FontLabel
 ---------
 
 This is a subclass of UILabel that draws text using a CGFontRef/pointSize pair instead
 of a UIFont. It uses FontLabelStringDrawing internally to do the heavy lifting. At the moment
-it does not support wrapping or hard line breaks. `-sizeToFit` works, as do the
+it does not support wrapping. `-sizeToFit` works, as do the
 standard `textAlignment`/`textColor` properties.
 
 The following properties are ignored:

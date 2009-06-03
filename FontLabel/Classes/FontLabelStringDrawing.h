@@ -23,5 +23,8 @@
 
 @interface NSString (FontLabelStringDrawing)
 - (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize;
+- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size;
+- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size
+		   lineBreakMode:(UILineBreakMode)lineBreakMode;
 - (CGSize)drawAtPoint:(CGPoint)point withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize;
 @end
