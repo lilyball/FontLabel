@@ -40,6 +40,7 @@
 	label.backgroundColor = nil;
 	label.opaque = NO;
 	[self.view addSubview:label];
+	[label release];
 	
 	FontLabel *label2 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label.frame) + 10, 0, 0)
 													  fontName:@"Scissor Cuts" pointSize:24.0f];
@@ -49,6 +50,7 @@
 	label2.backgroundColor = nil;
 	label2.opaque = NO;
 	[self.view addSubview:label2];
+	[label2 release];
 	
 	FontLabel *label3 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label2.frame) + 10, 0, 0)
 												  fontName:@"Abberancy" pointSize:30.0f];
@@ -58,6 +60,7 @@
 	label3.backgroundColor = nil;
 	label3.opaque = NO;
 	[self.view addSubview:label3];
+	[label3 release];
 	
 	FontLabel *label4 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label3.frame) + 10, 0, 0)
 												  fontName:@"Schwarzwald Regular" pointSize:30.0f];
@@ -67,6 +70,7 @@
 	label4.backgroundColor = nil;
 	label4.opaque = NO;
 	[self.view addSubview:label4];
+	[label4 release];
 	
 	FontLabel *label5 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label4.frame) + 10, 300, 100)
 												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
@@ -75,6 +79,7 @@
 	label5.textAlignment = UITextAlignmentCenter;
 	label5.backgroundColor = [UIColor greenColor];
 	[self.view addSubview:label5];
+	[label5 release];
 	
 	FontLabel *label6 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label5.frame) + 10, 300, 100)
 												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
@@ -83,6 +88,7 @@
 	label6.textAlignment = UITextAlignmentRight;
 	label6.backgroundColor = [UIColor blueColor];
 	[self.view addSubview:label6];
+	[label6 release];
 }
 
 - (void)dealloc {
