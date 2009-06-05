@@ -194,6 +194,10 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 			NSUInteger softRowLen = rowLen - rowIdx;
 			NSUInteger skipRowIdx = 0;
 			CGFloat curWidth = rowSize.width;
+			retVal.height += rowSize.height;
+			if (retVal.height + ascender > constrainedSize.height) {
+				lastLine = YES;
+			}
 			if (curWidth > constrainedSize.width) {
 				// wrap to a new line
 				CGFloat skipWidth = 0;
@@ -202,10 +206,14 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 				curWidth = 0;
 				for (NSUInteger j = rowIdx; j < rowLen; j++) {
 					CGFloat newWidth = curWidth + widths[j];
-					if (newWidth > constrainedSize.width) {
+					// never wrap if we haven't consumed at least 1 character
+					if (newWidth > constrainedSize.width && j > rowIdx) {
 						// we've gone over the limit now
-						if (lastSpace == 0 || lineBreakMode == UILineBreakModeCharacterWrap) {
-							// this is the first word, fall back to character wrap instead
+						if (lastSpace == 0 || lineBreakMode == UILineBreakModeCharacterWrap ||
+							(lastLine && (lineBreakMode == UILineBreakModeTailTruncation ||
+										  lineBreakMode == UILineBreakModeMiddleTruncation ||
+										  lineBreakMode == UILineBreakModeHeadTruncation))) {
+							// if this is the first word, fall back to character wrap instead
 							softRowLen = j - rowIdx;
 						} else {
 							softRowLen = lastSpace - rowIdx;
@@ -224,15 +232,14 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 				}
 				rowSize.width -= (curWidth + skipWidth);
 			}
-			retVal.height += rowSize.height;
-			if (retVal.height + ascender > constrainedSize.height) {
-				lastLine = YES;
+			if (lastLine) {
 				// we're on the last line, check for truncation
 				if (rowIdx + softRowLen < rowLen) {
 					// there's still remaining text
 					if (lineBreakMode == UILineBreakModeTailTruncation ||
 						lineBreakMode == UILineBreakModeMiddleTruncation ||
 						lineBreakMode == UILineBreakModeHeadTruncation) {
+						//softRowLen = truncationRowLen;
 						unichar ellipsis = 0x2026; // ellipsis (…)
 						CGGlyph ellipsisGlyph;
 						mapCharactersToGlyphsInFont(table, 1, &ellipsis, &ellipsisGlyph, NO);
@@ -241,7 +248,22 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 						mapGlyphsToAdvancesInFont(font, pointSize, 1, &ellipsisGlyph, &ellipsisAdvance, &ellipsisWidth, NULL);
 						switch (lineBreakMode) {
 							case UILineBreakModeTailTruncation: {
-								while (curWidth + ellipsisWidth > constrainedSize.width && softRowLen > 0) {
+								while (curWidth + ellipsisWidth > constrainedSize.width && softRowLen > 1) {
+									softRowLen--;
+									curWidth -= widths[rowIdx+softRowLen];
+								}
+								// keep going backwards if we've stopped at a space or just after the first letter
+								// of a multi-letter word
+								if (softRowLen > 1 && charPtr[rowIdx+softRowLen-1] != (unichar)' ' &&
+									charPtr[rowIdx+softRowLen-2] == (unichar)' ') {
+									// we're right after the first letter of a word. Is it a multi-letter word?
+									NSCharacterSet *set = [NSCharacterSet alphanumericCharacterSet];
+									if (rowIdx+softRowLen < rowLen && [set characterIsMember:charPtr[rowIdx+softRowLen]]) {
+										softRowLen--;
+										curWidth -= widths[rowIdx+softRowLen];
+									}
+								}
+								while (softRowLen > 1 && charPtr[rowIdx+softRowLen-1] == (unichar)' ') {
 									softRowLen--;
 									curWidth -= widths[rowIdx+softRowLen];
 								}
