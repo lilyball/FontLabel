@@ -406,7 +406,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 	CGSize retVal = mapGlyphsToAdvancesInFont(font, pointSize, [self length], glyphs, advances, NULL, &ascender);
 	
 	// flip it upside-down because our 0,0 is upper-left, whereas ttfs are for screens where 0,0 is lower-left
-	CGAffineTransform textTransform = CGAffineTransformMakeScale(1.0, -1.0);
+	CGAffineTransform textTransform = CGAffineTransformMakeScale(1.0f, -1.0f);
 	CGContextSetTextMatrix(ctx, textTransform);
 	
 	CGContextSetTextDrawingMode(ctx, kCGTextFill);
@@ -432,7 +432,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 	CGContextSetFontSize(ctx, pointSize);
 	
 	// flip it upside-down because our 0,0 is upper-left, whereas ttfs are for screens where 0,0 is lower-left
-	CGAffineTransform textTransform = CGAffineTransformMake(1.0, 0.0, 0.0, -1.0, 0.0, 0.0);
+	CGAffineTransform textTransform = CGAffineTransformMake(1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
 	CGContextSetTextMatrix(ctx, textTransform);
 	
 	CGContextTranslateCTM(ctx, rect.origin.x, rect.origin.y);
