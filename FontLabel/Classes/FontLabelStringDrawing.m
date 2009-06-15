@@ -91,9 +91,25 @@ static fontTable *readFontTableFromFont(CGFontRef font) {
 // This is odd, but it mirrors -sizeWithFont: and -drawAtPoint:withFont:
 static void mapCharactersToGlyphsInFont(const fontTable *table, size_t n, unichar characters[], CGGlyph outGlyphs[], BOOL convertNewlines) {
 	if (table != NULL) {
+		BOOL isCRLF = NO;
 		for (NSUInteger i = 0; i < n; i++) {
 			unichar c = characters[i];
-			if (convertNewlines && c == (unichar)'\n') c = (unichar)' ';
+			if (convertNewlines) {
+				BOOL convert = NO;
+				if (c == (unichar)'\r') {
+					convert = YES;
+					isCRLF = YES;
+				} else if (c == (unichar)'\n') {
+					if (!isCRLF) {
+						convert = YES;
+					}
+				} else {
+					isCRLF = NO;
+				}
+				if (convert) {
+					c = (unichar)' ';
+				}
+			}
 			UInt16 segOffset;
 			BOOL foundSegment = NO;
 			for (segOffset = 0; segOffset < table->segCountX2; segOffset += 2) {
@@ -126,9 +142,25 @@ static void mapCharactersToGlyphsInFont(const fontTable *table, size_t n, unicha
 			}
 		}
 	} else {
+		BOOL isCRLF = NO;
 		for (NSUInteger i = 0; i < n; i++) { 
 			unichar c = characters[i];
-			if (convertNewlines && c == (unichar)'\n') c = (unichar)' ';
+			if (convertNewlines) {
+				BOOL convert = NO;
+				if (c == (unichar)'\r') {
+					convert = YES;
+					isCRLF = YES;
+				} else if (c == (unichar)'\n') {
+					if (!isCRLF) {
+						convert = YES;
+					}
+				} else {
+					isCRLF = NO;
+				}
+				if (convert) {
+					c = (unichar)' ';
+				}
+			}
 			// 29 is some weird magic number that works for lots of fonts
 			outGlyphs[i] = c - 29;
 		}
@@ -180,9 +212,13 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 	while (idx < len && !lastLine) {
 		unichar *charPtr = &characters[idx];
 		NSUInteger i;
-		for (i = idx; i < len && characters[i] != (unichar)'\n'; i++);
+		for (i = idx; i < len && characters[i] != (unichar)'\n' && characters[i] != (unichar)'\r'; i++);
 		size_t rowLen = i - idx;
-		idx = i + 1; // + 1 skips the newline, if that's where we stopped
+		if ((i+1) < len && characters[i] == (unichar)'\r' && characters[i+1] == (unichar)'\n') {
+			idx = i + 2;
+		} else {
+			idx = i + 1;
+		}
 		CGGlyph glyphs[(rowLen ?: 1)]; // 0-sized arrays are undefined, so ensure we declare at least 1 elt
 		mapCharactersToGlyphsInFont(table, rowLen, charPtr, glyphs, NO);
 		// Get the advances for the glyphs
