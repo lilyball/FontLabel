@@ -37,8 +37,10 @@ static fontTable *newFontTable(CFDataRef cmapTable) {
 }
 
 static void freeFontTable(fontTable *table) {
-	CFRelease(table->cmapTable);
-	free(table);
+	if (table != NULL) {
+		CFRelease(table->cmapTable);
+		free(table);
+	}
 }
 
 // read the cmap table from the font
