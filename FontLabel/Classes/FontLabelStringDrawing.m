@@ -259,11 +259,11 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 								softRowLen = j - rowIdx;
 							} else {
 								softRowLen = lastSpace - rowIdx;
-								while (rowIdx + softRowLen + skipRowIdx < rowLen && charPtr[rowIdx+softRowLen+skipRowIdx] == (unichar)' ') {
-									skipWidth += widths[rowIdx+softRowLen+skipRowIdx];
-									skipRowIdx++;
-								}
 								curWidth = lastSpaceWidth;
+							}
+							while (rowIdx + softRowLen + skipRowIdx < rowLen && charPtr[rowIdx+softRowLen+skipRowIdx] == (unichar)' ') {
+								skipWidth += widths[rowIdx+softRowLen+skipRowIdx];
+								skipRowIdx++;
 							}
 							break;
 						} else if (charPtr[j] == (unichar)' ') {
