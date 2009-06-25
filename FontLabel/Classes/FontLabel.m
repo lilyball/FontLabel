@@ -58,7 +58,8 @@
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds limitedToNumberOfLines:(NSInteger)numberOfLines {
-	bounds.size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize constrainedToSize:bounds.size];
+	bounds.size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize constrainedToSize:bounds.size
+							  lineBreakMode:self.lineBreakMode];
 	return bounds;
 }
 
