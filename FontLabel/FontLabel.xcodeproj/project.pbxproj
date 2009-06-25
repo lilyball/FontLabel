@@ -145,7 +145,7 @@
 				433B50640FB50375000B10FB /* FontManager.h */,
 				433B50650FB50375000B10FB /* FontManager.m */,
 			);
-			name = FontLabel;
+			path = FontLabel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
