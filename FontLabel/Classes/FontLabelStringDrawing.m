@@ -251,7 +251,16 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 						// never wrap if we haven't consumed at least 1 character
 						if (newWidth > constrainedSize.width && j > rowIdx) {
 							// we've gone over the limit now
-							if (lastSpace == 0 || lineBreakMode == UILineBreakModeCharacterWrap ||
+							if (charPtr[j] == (unichar)' ') {
+								// we're at a space already, just break here regardless of the line break mode
+								// walk backwards to find the begnining of this run of spaces
+								for (NSUInteger k = j-1; k >= rowIdx && charPtr[k] == (unichar)' '; k--) {
+									curWidth -= widths[k];
+									skipWidth += widths[k];
+									j = k;
+								}
+								softRowLen = j - rowIdx;
+							} else if (lastSpace == 0 || lineBreakMode == UILineBreakModeCharacterWrap ||
 								(lastLine && (lineBreakMode == UILineBreakModeTailTruncation ||
 											  lineBreakMode == UILineBreakModeMiddleTruncation ||
 											  lineBreakMode == UILineBreakModeHeadTruncation))) {
