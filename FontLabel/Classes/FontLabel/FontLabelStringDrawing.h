@@ -21,14 +21,28 @@
 
 #import <UIKit/UIKit.h>
 
+@class ZFont;
+
 @interface NSString (FontLabelStringDrawing)
-- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize;
-- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size;
+// CGFontRef-based methods
+- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
+- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size __DARWIN_DEPRECATED_ATTRIBUTE;
 - (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size
-		   lineBreakMode:(UILineBreakMode)lineBreakMode;
-- (CGSize)drawAtPoint:(CGPoint)point withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize;
-- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize;
-- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize lineBreakMode:(UILineBreakMode)lineBreakMode;
+		   lineBreakMode:(UILineBreakMode)lineBreakMode __DARWIN_DEPRECATED_ATTRIBUTE;
+- (CGSize)drawAtPoint:(CGPoint)point withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
+- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
 - (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize
-	   lineBreakMode:(UILineBreakMode)lineBreakMode alignment:(UITextAlignment)alignment;
+	   lineBreakMode:(UILineBreakMode)lineBreakMode __DARWIN_DEPRECATED_ATTRIBUTE;
+- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize
+	   lineBreakMode:(UILineBreakMode)lineBreakMode alignment:(UITextAlignment)alignment __DARWIN_DEPRECATED_ATTRIBUTE;
+
+// ZFont-based methods
+- (CGSize)sizeWithZFont:(ZFont *)font;
+- (CGSize)sizeWithZFont:(ZFont *)font constrainedToSize:(CGSize)size;
+- (CGSize)sizeWithZFont:(ZFont *)font constrainedToSize:(CGSize)size lineBreakMode:(UILineBreakMode)lineBreakMode;
+- (CGSize)drawAtPoint:(CGPoint)point withZFont:(ZFont *)font;
+- (CGSize)drawInRect:(CGRect)rect withZFont:(ZFont *)font;
+- (CGSize)drawInRect:(CGRect)rect withZFont:(ZFont *)font lineBreakMode:(UILineBreakMode)lineBreakMode;
+- (CGSize)drawInRect:(CGRect)rect withZFont:(ZFont *)font lineBreakMode:(UILineBreakMode)lineBreakMode
+		   alignment:(UITextAlignment)alignment;
 @end

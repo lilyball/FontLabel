@@ -18,6 +18,7 @@
 		433B505F0FB50365000B10FB /* FontLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 433B505E0FB50365000B10FB /* FontLabel.m */; };
 		433B50630FB5036D000B10FB /* FontLabelStringDrawing.m in Sources */ = {isa = PBXBuildFile; fileRef = 433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */; };
 		433B50660FB50375000B10FB /* FontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 433B50650FB50375000B10FB /* FontManager.m */; };
+		437BC2950FFD2E21001C57E9 /* ZFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 437BC2940FFD2E21001C57E9 /* ZFont.m */; };
 		902B00900FAA484500BDEBD0 /* A Damn Mess.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 902B008A0FAA484500BDEBD0 /* A Damn Mess.ttf */; };
 		902B00910FAA484500BDEBD0 /* Abberancy.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 902B008B0FAA484500BDEBD0 /* Abberancy.ttf */; };
 		902B00920FAA484500BDEBD0 /* Abduction.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 902B008C0FAA484500BDEBD0 /* Abduction.ttf */; };
@@ -45,6 +46,8 @@
 		433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontLabelStringDrawing.m; sourceTree = "<group>"; };
 		433B50640FB50375000B10FB /* FontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontManager.h; sourceTree = "<group>"; };
 		433B50650FB50375000B10FB /* FontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontManager.m; sourceTree = "<group>"; };
+		437BC2930FFD2E21001C57E9 /* ZFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZFont.h; sourceTree = "<group>"; };
+		437BC2940FFD2E21001C57E9 /* ZFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZFont.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		902B008A0FAA484500BDEBD0 /* A Damn Mess.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "A Damn Mess.ttf"; sourceTree = "<group>"; };
 		902B008B0FAA484500BDEBD0 /* Abberancy.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Abberancy.ttf; sourceTree = "<group>"; };
@@ -144,6 +147,8 @@
 				433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */,
 				433B50640FB50375000B10FB /* FontManager.h */,
 				433B50650FB50375000B10FB /* FontManager.m */,
+				437BC2930FFD2E21001C57E9 /* ZFont.h */,
+				437BC2940FFD2E21001C57E9 /* ZFont.m */,
 			);
 			path = FontLabel;
 			sourceTree = "<group>";
@@ -214,6 +219,7 @@
 				433B505F0FB50365000B10FB /* FontLabel.m in Sources */,
 				433B50630FB5036D000B10FB /* FontLabelStringDrawing.m in Sources */,
 				433B50660FB50375000B10FB /* FontManager.m in Sources */,
+				437BC2950FFD2E21001C57E9 /* ZFont.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

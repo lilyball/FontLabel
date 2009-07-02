@@ -21,11 +21,12 @@
 
 #import <Foundation/Foundation.h>
 
+@class ZFont;
 
 @interface FontManager : NSObject {
 	CFMutableDictionaryRef fonts;
 }
-+ (id)sharedManager;
++ (FontManager *)sharedManager;
 /*!
     @method     
     @abstract   Loads a TTF font from the main bundle
@@ -42,5 +43,15 @@
     @discussion If the font has not been loaded yet, -loadFont: will be
                 called with the given name first.
 */
-- (CGFontRef)fontWithName:(NSString *)filename;
+- (CGFontRef)fontWithName:(NSString *)filename __DARWIN_DEPRECATED_ATTRIBUTE;
+/*!
+	@method
+	@abstract	Returns a ZFont object corresponding to the loaded font with the given filename and point size
+	@param filename The name of the font file that was given to -loadFont:
+	@param pointSize The point size of the font
+	@return A ZFont, or NULL if the specified font cannot be found
+	@discussion If the font has not been loaded yet, -loadFont: will be
+				called with the given name first.
+*/
+- (ZFont *)zFontWithName:(NSString *)filename pointSize:(CGFloat)pointSize;
 @end

@@ -21,14 +21,17 @@
 
 #import <Foundation/Foundation.h>
 
+@class ZFont;
+
 @interface FontLabel : UILabel {
 	void *reserved; // works around a bug in UILabel
-	CGFontRef cgFont;
-	CGFloat fontSize;
+	ZFont *zFont;
 }
-@property (nonatomic, setter=setCGFont:) CGFontRef cgFont;
-@property (nonatomic, assign) CGFloat pointSize;
+@property (nonatomic, setter=setCGFont:) CGFontRef cgFont __DARWIN_DEPRECATED_ATTRIBUTE;
+@property (nonatomic, assign) CGFloat pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
+@property (nonatomic, retain, setter=setZFont:) ZFont *zFont;
 // -initWithFrame:fontName:pointSize: uses FontManager to look up the font name
 - (id)initWithFrame:(CGRect)frame fontName:(NSString *)fontName pointSize:(CGFloat)pointSize;
-- (id)initWithFrame:(CGRect)frame font:(CGFontRef)font pointSize:(CGFloat)pointSize;
+- (id)initWithFrame:(CGRect)frame zFont:(ZFont *)font;
+- (id)initWithFrame:(CGRect)frame font:(CGFontRef)font pointSize:(CGFloat)pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
 @end

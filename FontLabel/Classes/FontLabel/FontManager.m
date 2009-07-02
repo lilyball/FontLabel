@@ -20,11 +20,12 @@
 //
 
 #import "FontManager.h"
+#import "ZFont.h"
 
 static FontManager *sharedFontManager = nil;
 
 @implementation FontManager
-+ (id)sharedManager {
++ (FontManager *)sharedManager {
 	@synchronized(self) {
 		if (sharedFontManager == nil) {
 			sharedFontManager = [[self alloc] init];
@@ -64,6 +65,17 @@ static FontManager *sharedFontManager = nil;
 		font = (CGFontRef)CFDictionaryGetValue(fonts, filename);
 	}
 	return font;
+}
+
+- (ZFont *)zFontWithName:(NSString *)filename pointSize:(CGFloat)pointSize {
+	CGFontRef cgFont = (CGFontRef)CFDictionaryGetValue(fonts, filename);
+	if (cgFont == NULL && [self loadFont:filename]) {
+		cgFont = (CGFontRef)CFDictionaryGetValue(fonts, filename);
+	}
+	if (cgFont != NULL) {
+		return [ZFont fontWithCGFont:cgFont size:pointSize];
+	}
+	return nil;
 }
 
 - (void)dealloc {

@@ -22,26 +22,43 @@
 #import "FontLabel.h"
 #import "FontManager.h"
 #import "FontLabelStringDrawing.h"
+#import "ZFont.h"
 
 @implementation FontLabel
-@synthesize cgFont, pointSize=fontSize;
+@synthesize zFont;
 
 - (id)initWithFrame:(CGRect)frame fontName:(NSString *)fontName pointSize:(CGFloat)pointSize {
-	return [self initWithFrame:frame font:[[FontManager sharedManager] fontWithName:fontName] pointSize:pointSize];
+	return [self initWithFrame:frame zFont:[[FontManager sharedManager] zFontWithName:fontName pointSize:pointSize]];
 }
 
-- (id)initWithFrame:(CGRect)frame font:(CGFontRef)font pointSize:(CGFloat)pointSize {
+- (id)initWithFrame:(CGRect)frame zFont:(ZFont *)font {
 	if (self = [super initWithFrame:frame]) {
-		self.cgFont = font;
-		self.pointSize = pointSize;
+		zFont = [font retain];
 	}
 	return self;
 }
 
+- (id)initWithFrame:(CGRect)frame font:(CGFontRef)font pointSize:(CGFloat)pointSize {
+	return [self initWithFrame:frame zFont:[ZFont fontWithCGFont:font size:pointSize]];
+}
+
+- (CGFontRef)cgFont {
+	return self.zFont.cgFont;
+}
+
 - (void)setCGFont:(CGFontRef)font {
-	if (font != cgFont) {
-		CGFontRelease(cgFont);
-		cgFont = CGFontRetain(font);
+	if (self.zFont.cgFont != font) {
+		self.zFont = [ZFont fontWithCGFont:font size:self.zFont.pointSize];
+	}
+}
+
+- (CGFloat)pointSize {
+	return self.zFont.pointSize;
+}
+
+- (void)setPointSize:(CGFloat)pointSize {
+	if (self.zFont.pointSize != pointSize) {
+		self.zFont = [ZFont fontWithCGFont:self.zFont.cgFont size:pointSize];
 	}
 }
 
@@ -49,23 +66,20 @@
 	UIRectClip(rect);
 	// this method is documented as setting the text color for us, but that doesn't appear to be the case
 	[self.textColor setFill];
-	CGSize size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize constrainedToSize:rect.size];
+	CGSize size = [self.text sizeWithZFont:self.zFont constrainedToSize:rect.size];
 	CGPoint point = rect.origin;
 	point.y += MAX(rect.size.height - size.height, 0.0f) / 2.0f;
 	rect = (CGRect){point, CGSizeMake(rect.size.width, size.height)};
-	[self.text drawInRect:rect withCGFont:self.cgFont pointSize:self.pointSize
-			lineBreakMode:self.lineBreakMode alignment:self.textAlignment];
+	[self.text drawInRect:rect withZFont:self.zFont lineBreakMode:self.lineBreakMode alignment:self.textAlignment];
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds limitedToNumberOfLines:(NSInteger)numberOfLines {
-	bounds.size = [self.text sizeWithCGFont:self.cgFont pointSize:self.pointSize constrainedToSize:bounds.size
-							  lineBreakMode:self.lineBreakMode];
+	bounds.size = [self.text sizeWithZFont:self.zFont constrainedToSize:bounds.size lineBreakMode:self.lineBreakMode];
 	return bounds;
 }
 
 - (void)dealloc {
-	self.cgFont = nil;
+	[zFont release];
 	[super dealloc];
 }
-
 @end
