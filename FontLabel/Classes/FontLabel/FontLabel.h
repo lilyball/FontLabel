@@ -27,11 +27,11 @@
 	void *reserved; // works around a bug in UILabel
 	ZFont *zFont;
 }
-@property (nonatomic, setter=setCGFont:) CGFontRef cgFont __DARWIN_DEPRECATED_ATTRIBUTE;
-@property (nonatomic, assign) CGFloat pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
+@property (nonatomic, setter=setCGFont:) CGFontRef cgFont __AVAILABILITY_INTERNAL_DEPRECATED;
+@property (nonatomic, assign) CGFloat pointSize __AVAILABILITY_INTERNAL_DEPRECATED;
 @property (nonatomic, retain, setter=setZFont:) ZFont *zFont;
 // -initWithFrame:fontName:pointSize: uses FontManager to look up the font name
 - (id)initWithFrame:(CGRect)frame fontName:(NSString *)fontName pointSize:(CGFloat)pointSize;
 - (id)initWithFrame:(CGRect)frame zFont:(ZFont *)font;
-- (id)initWithFrame:(CGRect)frame font:(CGFontRef)font pointSize:(CGFloat)pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
+- (id)initWithFrame:(CGRect)frame font:(CGFontRef)font pointSize:(CGFloat)pointSize __AVAILABILITY_INTERNAL_DEPRECATED;
 @end

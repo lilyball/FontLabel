@@ -43,7 +43,7 @@
     @discussion If the font has not been loaded yet, -loadFont: will be
                 called with the given name first.
 */
-- (CGFontRef)fontWithName:(NSString *)filename __DARWIN_DEPRECATED_ATTRIBUTE;
+- (CGFontRef)fontWithName:(NSString *)filename __AVAILABILITY_INTERNAL_DEPRECATED;
 /*!
 	@method
 	@abstract	Returns a ZFont object corresponding to the loaded font with the given filename and point size

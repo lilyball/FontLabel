@@ -25,16 +25,16 @@
 
 @interface NSString (FontLabelStringDrawing)
 // CGFontRef-based methods
-- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
-- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size __DARWIN_DEPRECATED_ATTRIBUTE;
+- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize __AVAILABILITY_INTERNAL_DEPRECATED;
+- (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size __AVAILABILITY_INTERNAL_DEPRECATED;
 - (CGSize)sizeWithCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize constrainedToSize:(CGSize)size
-		   lineBreakMode:(UILineBreakMode)lineBreakMode __DARWIN_DEPRECATED_ATTRIBUTE;
-- (CGSize)drawAtPoint:(CGPoint)point withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
-- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize __DARWIN_DEPRECATED_ATTRIBUTE;
+		   lineBreakMode:(UILineBreakMode)lineBreakMode __AVAILABILITY_INTERNAL_DEPRECATED;
+- (CGSize)drawAtPoint:(CGPoint)point withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize __AVAILABILITY_INTERNAL_DEPRECATED;
+- (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize __AVAILABILITY_INTERNAL_DEPRECATED;
 - (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize
-	   lineBreakMode:(UILineBreakMode)lineBreakMode __DARWIN_DEPRECATED_ATTRIBUTE;
+	   lineBreakMode:(UILineBreakMode)lineBreakMode __AVAILABILITY_INTERNAL_DEPRECATED;
 - (CGSize)drawInRect:(CGRect)rect withCGFont:(CGFontRef)font pointSize:(CGFloat)pointSize
-	   lineBreakMode:(UILineBreakMode)lineBreakMode alignment:(UITextAlignment)alignment __DARWIN_DEPRECATED_ATTRIBUTE;
+	   lineBreakMode:(UILineBreakMode)lineBreakMode alignment:(UITextAlignment)alignment __AVAILABILITY_INTERNAL_DEPRECATED;
 
 // ZFont-based methods
 - (CGSize)sizeWithZFont:(ZFont *)font;
