@@ -79,6 +79,7 @@
 	label5.textAlignment = UITextAlignmentCenter;
 	label5.lineBreakMode = UILineBreakModeTailTruncation;
 	label5.backgroundColor = [UIColor greenColor];
+	label5.numberOfLines = 0;
 	[self.view addSubview:label5];
 	[label5 release];
 	
@@ -88,6 +89,7 @@
 	label6.text = @"right justified.\nThis is line two. Long lines should wrap";
 	label6.textAlignment = UITextAlignmentRight;
 	label6.backgroundColor = [UIColor blueColor];
+	label6.numberOfLines = 0;
 	[self.view addSubview:label6];
 	[label6 release];
 }

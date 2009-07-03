@@ -72,6 +72,12 @@
 	return [[[ZFont alloc] initWithCGFont:self.cgFont size:fontSize] autorelease];
 }
 
+- (BOOL)isEqual:(id)object {
+	if (![object isKindOfClass:[ZFont class]]) return NO;
+	ZFont *font = (ZFont *)object;
+	return (font.cgFont == self.cgFont && font.pointSize == self.pointSize);
+}
+
 - (void)dealloc {
 	CGFontRelease(_cgFont);
 	[super dealloc];

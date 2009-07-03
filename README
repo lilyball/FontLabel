@@ -53,14 +53,10 @@ Wrapping, tail truncation, and `-sizeToFit` work, as do the standard
 
 The following properties are ignored:
 
-* adjustsFontSizeToFitWidth
-* baselineAdjustment
 * enabled
 * font (use zFont instead)
 * highlighted
 * highlightedTextColor
-* minimumFontSize
-* numberOfLines
 * shadowColor
 * shadowOffset
 
