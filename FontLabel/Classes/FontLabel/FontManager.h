@@ -54,4 +54,11 @@
 				called with the given name first.
 */
 - (ZFont *)zFontWithName:(NSString *)filename pointSize:(CGFloat)pointSize;
+/*!
+	@method
+	@abstract   Returns a CFArrayRef of all loaded CGFont objects
+	@return A CFArrayRef of all loaded CGFont objects
+	@description You are responsible for releasing the CFArrayRef
+*/
+- (CFArrayRef)copyAllFonts;
 @end

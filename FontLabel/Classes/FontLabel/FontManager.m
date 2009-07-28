@@ -78,6 +78,15 @@ static FontManager *sharedFontManager = nil;
 	return nil;
 }
 
+- (CFArrayRef)copyAllFonts {
+	CFIndex count = CFDictionaryGetCount(fonts);
+	CGFontRef *values = (CGFontRef *)malloc(sizeof(CGFontRef) * count);
+	CFDictionaryGetKeysAndValues(fonts, NULL, (const void **)values);
+	CFArrayRef array = CFArrayCreate(NULL, (const void **)values, count, &kCFTypeArrayCallBacks);
+	free(values);
+	return array;
+}
+
 - (void)dealloc {
 	CFRelease(fonts);
 	[super dealloc];
