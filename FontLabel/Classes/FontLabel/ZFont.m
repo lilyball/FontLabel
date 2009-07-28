@@ -154,6 +154,9 @@
 
 - (void)dealloc {
 	CGFontRelease(_cgFont);
+	[_familyName release];
+	[_fontName release];
+	[_postScriptName release];
 	[super dealloc];
 }
 @end
