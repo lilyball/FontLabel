@@ -67,6 +67,11 @@
 }
 
 - (void)drawTextInRect:(CGRect)rect {
+	if (self.zFont == NULL) {
+		[super drawTextInRect:rect];
+		return;
+	}
+	
 	// this method is documented as setting the text color for us, but that doesn't appear to be the case
 	[self.textColor setFill];
 	
@@ -112,6 +117,10 @@
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds limitedToNumberOfLines:(NSInteger)numberOfLines {
+	if (self.zFont == NULL) {
+		return [super textRectForBounds:bounds limitedToNumberOfLines:numberOfLines];
+	}
+	
 	if (numberOfLines > 0) bounds.size.height = MIN(bounds.size.height, self.zFont.leading * numberOfLines);
 	bounds.size = [self.text sizeWithZFont:self.zFont constrainedToSize:bounds.size lineBreakMode:self.lineBreakMode];
 	return bounds;
