@@ -75,7 +75,7 @@
 	FontLabel *label5 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label4.frame) + 10, 300, 100)
 												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
 	label5.textColor = [UIColor blackColor];
-	label5.text = @"centered in a frame.\nthis is line two. Long lines should wrap, possibly multiple times. Really long lines should truncate.";
+	label5.text = @"centered in a frame.\nthis is line two. Long lines should wrap, possibly multiple times. Really long lines should truncate with an ellipsis.";
 	label5.textAlignment = UITextAlignmentCenter;
 	label5.lineBreakMode = UILineBreakModeTailTruncation;
 	label5.backgroundColor = [UIColor greenColor];
