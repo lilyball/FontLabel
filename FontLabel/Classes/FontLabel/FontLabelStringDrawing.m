@@ -234,6 +234,13 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 				retVal.height += rowSize.height;
 				if (retVal.height + ascender > constrainedSize.height) {
 					lastLine = YES;
+					// UILineBreakModeClip appears to behave like UILineBreakModeCharacterWrap
+					// on the last line of rendered text. This should be researched more fully
+					// (as it doesn't seem to match the documentation), but for the time being
+					// we should follow the same behavior.
+					if (lineBreakMode == UILineBreakModeClip) {
+						lineBreakMode = UILineBreakModeCharacterWrap;
+					}
 				}
 				if (curWidth > constrainedSize.width) {
 					// wrap to a new line
@@ -416,7 +423,6 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
  To put it simply, if the baseline point of a given line falls in the given size, the entire line will
  be present in the output size.
  */
-// at the moment, only UILineBreakModeWordWrap is supported
 - (CGSize)sizeWithZFont:(ZFont *)font constrainedToSize:(CGSize)size lineBreakMode:(UILineBreakMode)lineBreakMode {
 	size = drawOrSizeTextConstrainedToSize(NO, self, font, size, lineBreakMode, UITextAlignmentLeft);
 	return CGSizeMake(ceilf(size.width), ceilf(size.height));
