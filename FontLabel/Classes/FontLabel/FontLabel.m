@@ -80,7 +80,7 @@
 	if (self.numberOfLines == 1) {
 		origSize.height = actualFont.leading;
 		CGPoint point = CGPointMake(rect.origin.x,
-									rect.origin.y + ((rect.size.height - actualFont.leading) / 2.0f));
+									rect.origin.y + roundf(((rect.size.height - actualFont.leading) / 2.0f)));
 		CGSize size = [self.text sizeWithZFont:actualFont];
 		if (self.adjustsFontSizeToFitWidth && self.minimumFontSize < actualFont.pointSize) {
 			if (size.width > origSize.width) {
@@ -93,7 +93,7 @@
 			if (!CGSizeEqualToSize(origSize, size)) {
 				switch (self.baselineAdjustment) {
 					case UIBaselineAdjustmentAlignCenters:
-						point.y += (origSize.height - size.height) / 2.0f;
+						point.y += roundf((origSize.height - size.height) / 2.0f);
 						break;
 					case UIBaselineAdjustmentAlignBaselines:
 						point.y += (self.zFont.ascender - actualFont.ascender);
@@ -119,7 +119,7 @@
 		if (self.numberOfLines > 0) origSize.height = MIN(origSize.height, self.numberOfLines * actualFont.leading);
 		CGSize size = [self.text sizeWithZFont:actualFont constrainedToSize:origSize lineBreakMode:self.lineBreakMode];
 		CGPoint point = rect.origin;
-		point.y += MAX(rect.size.height - size.height, 0.0f) / 2.0f;
+		point.y += roundf((rect.size.height - size.height) / 2.0f);
 		rect = (CGRect){point, CGSizeMake(rect.size.width, size.height)};
 		[self.text drawInRect:rect withZFont:actualFont lineBreakMode:self.lineBreakMode alignment:self.textAlignment];
 	}
