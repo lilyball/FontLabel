@@ -105,12 +105,12 @@
 		}
 		// adjust the point for alignment
 		switch (self.textAlignment) {
-			UITextAlignmentLeft:
+			case UITextAlignmentLeft:
 				break;
-			UITextAlignmentCenter:
+			case UITextAlignmentCenter:
 				point.x += (origSize.width - size.width) / 2.0f;
 				break;
-			UITextAlignmentRight:
+			case UITextAlignmentRight:
 				point.x += origSize.width - size.width;
 				break;
 		}
