@@ -81,15 +81,14 @@
 		origSize.height = actualFont.leading;
 		CGPoint point = CGPointMake(rect.origin.x,
 									rect.origin.y + ((rect.size.height - actualFont.leading) / 2.0f));
+		CGSize size = [self.text sizeWithZFont:actualFont];
 		if (self.adjustsFontSizeToFitWidth && self.minimumFontSize < actualFont.pointSize) {
-			CGSize size = [self.text sizeWithZFont:actualFont];
-			if (size.width > rect.size.width) {
+			if (size.width > origSize.width) {
 				CGFloat desiredRatio = (origSize.width * actualFont.ratio) / size.width;
 				CGFloat desiredPointSize = desiredRatio * actualFont.pointSize / actualFont.ratio;
 				actualFont = [actualFont fontWithSize:MAX(MAX(desiredPointSize, self.minimumFontSize), 1.0f)];
-				size = [self.text sizeWithZFont:actualFont
-							  constrainedToSize:CGSizeMake(origSize.width, actualFont.leading)
-								  lineBreakMode:self.lineBreakMode];
+				size = [self.text sizeWithZFont:actualFont];
+				size.width = MIN(size.width, origSize.width);
 			}
 			if (!CGSizeEqualToSize(origSize, size)) {
 				switch (self.baselineAdjustment) {
@@ -104,8 +103,18 @@
 				}
 			}
 		}
-		rect = (CGRect){point, CGSizeMake(origSize.width, actualFont.leading)};
-		[self.text drawInRect:rect withZFont:actualFont lineBreakMode:self.lineBreakMode alignment:self.textAlignment];
+		// adjust the point for alignment
+		switch (self.textAlignment) {
+			UITextAlignmentLeft:
+				break;
+			UITextAlignmentCenter:
+				point.x += (origSize.width - size.width) / 2.0f;
+				break;
+			UITextAlignmentRight:
+				point.x += origSize.width - size.width;
+				break;
+		}
+		[self.text drawAtPoint:point forWidth:size.width withZFont:actualFont lineBreakMode:self.lineBreakMode];
 	} else {
 		if (self.numberOfLines > 0) origSize.height = MIN(origSize.height, self.numberOfLines * actualFont.leading);
 		CGSize size = [self.text sizeWithZFont:actualFont constrainedToSize:origSize lineBreakMode:self.lineBreakMode];
@@ -121,8 +130,15 @@
 		return [super textRectForBounds:bounds limitedToNumberOfLines:numberOfLines];
 	}
 	
-	if (numberOfLines > 0) bounds.size.height = MIN(bounds.size.height, self.zFont.leading * numberOfLines);
-	bounds.size = [self.text sizeWithZFont:self.zFont constrainedToSize:bounds.size lineBreakMode:self.lineBreakMode];
+	if (numberOfLines == 1) {
+		// if numberOfLines == 1 we need to use the version that converts spaces
+		CGSize size = [self.text sizeWithZFont:self.zFont];
+		bounds.size.width = MIN(bounds.size.width, size.width);
+		bounds.size.height = MIN(bounds.size.height, size.height);
+	} else {
+		if (numberOfLines > 0) bounds.size.height = MIN(bounds.size.height, self.zFont.leading * numberOfLines);
+		bounds.size = [self.text sizeWithZFont:self.zFont constrainedToSize:bounds.size lineBreakMode:self.lineBreakMode];
+	}
 	return bounds;
 }
 

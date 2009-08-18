@@ -41,6 +41,7 @@
 - (CGSize)sizeWithZFont:(ZFont *)font constrainedToSize:(CGSize)size;
 - (CGSize)sizeWithZFont:(ZFont *)font constrainedToSize:(CGSize)size lineBreakMode:(UILineBreakMode)lineBreakMode;
 - (CGSize)drawAtPoint:(CGPoint)point withZFont:(ZFont *)font;
+- (CGSize)drawAtPoint:(CGPoint)point forWidth:(CGFloat)width withZFont:(ZFont *)font lineBreakMode:(UILineBreakMode)lineBreakMode;
 - (CGSize)drawInRect:(CGRect)rect withZFont:(ZFont *)font;
 - (CGSize)drawInRect:(CGRect)rect withZFont:(ZFont *)font lineBreakMode:(UILineBreakMode)lineBreakMode;
 - (CGSize)drawInRect:(CGRect)rect withZFont:(ZFont *)font lineBreakMode:(UILineBreakMode)lineBreakMode
