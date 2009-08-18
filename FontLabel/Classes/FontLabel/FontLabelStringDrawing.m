@@ -59,22 +59,41 @@ static fontTable *readFontTableFromCGFont(CGFontRef font) {
 			   (font ? [(id)CFCopyDescription(font) autorelease] : @"(null)"));
 	UInt16 numberOfSubtables = OSReadBigInt16(bytes, 2);
 	const UInt8 *unicodeSubtable = NULL;
+	//UInt16 unicodeSubtablePlatformID;
+	UInt16 unicodeSubtablePlatformSpecificID;
+	UInt16 unicodeSubtableFormat;
 	const UInt8 * const encodingSubtables = &bytes[4];
 	for (UInt16 i = 0; i < numberOfSubtables; i++) {
 		const UInt8 * const encodingSubtable = &encodingSubtables[8 * i];
 		UInt16 platformID = OSReadBigInt16(encodingSubtable, 0);
 		UInt16 platformSpecificID = OSReadBigInt16(encodingSubtable, 2);
-		if (platformID == 0) {
-			if (platformSpecificID == 3 || unicodeSubtable == NULL) {
+		// find the best subtable
+		// best is defined by a combination of encoding and format
+		// At the moment we only support format 4, so ignore all other format tables
+		// We prefer platformID == 0, but we will also accept Microsoft's unicode format
+		if (platformID == 0 || (platformID == 3 && platformSpecificID == 1)) {
+			BOOL preferred = NO;
+			if (unicodeSubtable == NULL) {
+				preferred = YES;
+			} else if (platformID == 0 && platformSpecificID > unicodeSubtablePlatformSpecificID) {
+				preferred = YES;
+			}
+			if (preferred) {
 				UInt32 offset = OSReadBigInt32(encodingSubtable, 4);
-				unicodeSubtable = &bytes[offset];
+				const UInt8 *subtable = &bytes[offset];
+				UInt16 format = OSReadBigInt16(subtable, 0);
+				if (format == 4) {
+					unicodeSubtable = subtable;
+					//unicodeSubtablePlatformID = platformID;
+					unicodeSubtablePlatformSpecificID = platformSpecificID;
+					unicodeSubtableFormat = format;
+				}
 			}
 		}
 	}
 	fontTable *table = NULL;
 	if (unicodeSubtable != NULL) {
-		UInt16 format = OSReadBigInt16(unicodeSubtable, 0);
-		if (format == 4) {
+		if (unicodeSubtableFormat == 4) {
 			// subtable format 4
 			table = newFontTable(cmapTable);
 			//UInt16 length = OSReadBigInt16(unicodeSubtable, 2);
