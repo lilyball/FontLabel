@@ -88,7 +88,6 @@
 				CGFloat desiredPointSize = desiredRatio * actualFont.pointSize / actualFont.ratio;
 				actualFont = [actualFont fontWithSize:MAX(MAX(desiredPointSize, self.minimumFontSize), 1.0f)];
 				size = [self.text sizeWithZFont:actualFont];
-				size.width = MIN(size.width, origSize.width);
 			}
 			if (!CGSizeEqualToSize(origSize, size)) {
 				switch (self.baselineAdjustment) {
@@ -103,6 +102,7 @@
 				}
 			}
 		}
+		size.width = MIN(size.width, origSize.width);
 		// adjust the point for alignment
 		switch (self.textAlignment) {
 			case UITextAlignmentLeft:
