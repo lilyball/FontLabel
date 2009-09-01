@@ -26,18 +26,40 @@
 @property (nonatomic, readonly) CGFloat ratio;
 @end
 
+typedef enum {
+	kFontTableFormat4 = 4,
+	kFontTableFormat12 = 12,
+} FontTableFormat;
+
 typedef struct fontTable {
 	CFDataRef cmapTable;
-	UInt16 segCountX2;
-	UInt16 *endCodes;
-	UInt16 *startCodes;
-	UInt16 *idDeltas;
-	UInt16 *idRangeOffsets;
+	FontTableFormat format;
+	union {
+		struct {
+			UInt16 segCountX2;
+			UInt16 *endCodes;
+			UInt16 *startCodes;
+			UInt16 *idDeltas;
+			UInt16 *idRangeOffsets;
+		} format4;
+		struct {
+			UInt32 nGroups;
+			struct {
+				UInt32 startCharCode;
+				UInt32 endCharCode;
+				UInt32 startGlyphCode;
+			} *groups;
+		} format12;
+	} cmap;
 } fontTable;
 
-static fontTable *newFontTable(CFDataRef cmapTable) {
+static FontTableFormat supportedFormats[] = { kFontTableFormat4, kFontTableFormat12 };
+static size_t supportedFormatsCount = sizeof(supportedFormats) / sizeof(FontTableFormat);
+
+static fontTable *newFontTable(CFDataRef cmapTable, FontTableFormat format) {
 	fontTable *table = (struct fontTable *)malloc(sizeof(struct fontTable));
 	table->cmapTable = CFRetain(cmapTable);
+	table->format = format;
 	return table;
 }
 
@@ -61,7 +83,7 @@ static fontTable *readFontTableFromCGFont(CGFontRef font) {
 	const UInt8 *unicodeSubtable = NULL;
 	//UInt16 unicodeSubtablePlatformID;
 	UInt16 unicodeSubtablePlatformSpecificID;
-	UInt16 unicodeSubtableFormat;
+	FontTableFormat unicodeSubtableFormat;
 	const UInt8 * const encodingSubtables = &bytes[4];
 	for (UInt16 i = 0; i < numberOfSubtables; i++) {
 		const UInt8 * const encodingSubtable = &encodingSubtables[8 * i];
@@ -82,31 +104,51 @@ static fontTable *readFontTableFromCGFont(CGFontRef font) {
 				UInt32 offset = OSReadBigInt32(encodingSubtable, 4);
 				const UInt8 *subtable = &bytes[offset];
 				UInt16 format = OSReadBigInt16(subtable, 0);
-				if (format == 4) {
-					unicodeSubtable = subtable;
-					//unicodeSubtablePlatformID = platformID;
-					unicodeSubtablePlatformSpecificID = platformSpecificID;
-					unicodeSubtableFormat = format;
+				for (int i = 0; i < supportedFormatsCount; i++) {
+					if (format == supportedFormats[i]) {
+						if (format >= 8) {
+							// the version is a fixed-point
+							UInt16 formatFrac = OSReadBigInt16(subtable, 2);
+							if (formatFrac != 0) {
+								// all the current formats with a Fixed version are always *.0
+								continue;
+							}
+						}
+						unicodeSubtable = subtable;
+						//unicodeSubtablePlatformID = platformID;
+						unicodeSubtablePlatformSpecificID = platformSpecificID;
+						unicodeSubtableFormat = format;
+						break;
+					}
 				}
 			}
 		}
 	}
 	fontTable *table = NULL;
 	if (unicodeSubtable != NULL) {
-		if (unicodeSubtableFormat == 4) {
-			// subtable format 4
-			table = newFontTable(cmapTable);
-			//UInt16 length = OSReadBigInt16(unicodeSubtable, 2);
-			//UInt16 language = OSReadBigInt16(unicodeSubtable, 4);
-			table->segCountX2 = OSReadBigInt16(unicodeSubtable, 6);
-			//UInt16 searchRange = OSReadBigInt16(unicodeSubtable, 8);
-			//UInt16 entrySelector = OSReadBigInt16(unicodeSubtable, 10);
-			//UInt16 rangeShift = OSReadBigInt16(unicodeSubtable, 12);
-			table->endCodes = (UInt16*)&unicodeSubtable[14];
-			table->startCodes = (UInt16*)&((UInt8*)table->endCodes)[table->segCountX2+2];
-			table->idDeltas = (UInt16*)&((UInt8*)table->startCodes)[table->segCountX2];
-			table->idRangeOffsets = (UInt16*)&((UInt8*)table->idDeltas)[table->segCountX2];
-			//UInt16 *glyphIndexArray = &idRangeOffsets[segCountX2];
+		table = newFontTable(cmapTable, unicodeSubtableFormat);
+		switch (unicodeSubtableFormat) {
+			case kFontTableFormat4:
+				// subtable format 4
+				//UInt16 length = OSReadBigInt16(unicodeSubtable, 2);
+				//UInt16 language = OSReadBigInt16(unicodeSubtable, 4);
+				table->cmap.format4.segCountX2 = OSReadBigInt16(unicodeSubtable, 6);
+				//UInt16 searchRange = OSReadBigInt16(unicodeSubtable, 8);
+				//UInt16 entrySelector = OSReadBigInt16(unicodeSubtable, 10);
+				//UInt16 rangeShift = OSReadBigInt16(unicodeSubtable, 12);
+				table->cmap.format4.endCodes = (UInt16*)&unicodeSubtable[14];
+				table->cmap.format4.startCodes = (UInt16*)&((UInt8*)table->cmap.format4.endCodes)[table->cmap.format4.segCountX2+2];
+				table->cmap.format4.idDeltas = (UInt16*)&((UInt8*)table->cmap.format4.startCodes)[table->cmap.format4.segCountX2];
+				table->cmap.format4.idRangeOffsets = (UInt16*)&((UInt8*)table->cmap.format4.idDeltas)[table->cmap.format4.segCountX2];
+				//UInt16 *glyphIndexArray = &idRangeOffsets[segCountX2];
+				break;
+			case kFontTableFormat12:
+				table->cmap.format12.nGroups = OSReadBigInt32(unicodeSubtable, 12);
+				table->cmap.format12.groups = (void *)&unicodeSubtable[16];
+				break;
+			default:
+				freeFontTable(table);
+				table = NULL;
 		}
 	}
 	CFRelease(cmapTable);
@@ -118,34 +160,67 @@ static void mapCharactersToGlyphsInFont(const fontTable *table, size_t n, unicha
 	if (table != NULL) {
 		for (NSUInteger i = 0; i < n; i++) {
 			unichar c = characters[i];
-			UInt16 segOffset;
-			BOOL foundSegment = NO;
-			for (segOffset = 0; segOffset < table->segCountX2; segOffset += 2) {
-				UInt16 endCode = OSReadBigInt16(table->endCodes, segOffset);
-				if (endCode >= c) {
-					foundSegment = YES;
+			switch (table->format) {
+				case kFontTableFormat4: {
+					UInt16 segOffset;
+					BOOL foundSegment = NO;
+					for (segOffset = 0; segOffset < table->cmap.format4.segCountX2; segOffset += 2) {
+						UInt16 endCode = OSReadBigInt16(table->cmap.format4.endCodes, segOffset);
+						if (endCode >= c) {
+							foundSegment = YES;
+							break;
+						}
+					}
+					if (!foundSegment) {
+						// no segment
+						// this is an invalid font
+						outGlyphs[i] = 0;
+					} else {
+						UInt16 startCode = OSReadBigInt16(table->cmap.format4.startCodes, segOffset);
+						if (!(startCode <= c)) {
+							// the code falls in a hole between segments
+							outGlyphs[i] = 0;
+						} else {
+							UInt16 idRangeOffset = OSReadBigInt16(table->cmap.format4.idRangeOffsets, segOffset);
+							if (idRangeOffset == 0) {
+								UInt16 idDelta = OSReadBigInt16(table->cmap.format4.idDeltas, segOffset);
+								outGlyphs[i] = (c + idDelta) % 65536;
+							} else {
+								// use the glyphIndexArray
+								UInt16 glyphOffset = idRangeOffset + 2 * (c - startCode);
+								outGlyphs[i] = OSReadBigInt16(&((UInt8*)table->cmap.format4.idRangeOffsets)[segOffset], glyphOffset);
+							}
+						}
+					}
 					break;
 				}
-			}
-			if (!foundSegment) {
-				// no segment
-				// this is an invalid font
-				outGlyphs[i] = 0;
-			} else {
-				UInt16 startCode = OSReadBigInt16(table->startCodes, segOffset);
-				if (!(startCode <= c)) {
-					// the code falls in a hole between segments
-					outGlyphs[i] = 0;
-				} else {
-					UInt16 idRangeOffset = OSReadBigInt16(table->idRangeOffsets, segOffset);
-					if (idRangeOffset == 0) {
-						UInt16 idDelta = OSReadBigInt16(table->idDeltas, segOffset);
-						outGlyphs[i] = (c + idDelta) % 65536;
-					} else {
-						// use the glyphIndexArray
-						UInt16 glyphOffset = idRangeOffset + 2 * (c - startCode);
-						outGlyphs[i] = OSReadBigInt16(&((UInt8*)table->idRangeOffsets)[segOffset], glyphOffset);
+				case kFontTableFormat12: {
+					UInt32 c32 = c;
+					if (c >= 0xD800 && c <= 0xDBFF) {
+						// c is a high surrogate
+						if (i+1 < n) { // do we have another character after this one?
+							unichar cc = characters[i+1];
+							if (cc >= 0xDC00 && cc <= 0xDFFF) {
+								// cc is a low surrogate
+								c32 = (c - 0xD800) * 0x400 + (cc - 0xDC00) + 0x10000;
+#warning Surrogate pairs aren't truly supported yet
+								outGlyphs[i] = 0;
+								i++;
+							}
+						}
 					}
+					for (UInt32 j = 0;; j++) {
+						if (j >= table->cmap.format12.nGroups) {
+							outGlyphs[i] = 0;
+							break;
+						}
+						__typeof__(table->cmap.format12.groups[j]) group = table->cmap.format12.groups[j];
+						if (c32 >= OSSwapBigToHostInt32(group.startCharCode) && c32 <= OSSwapBigToHostInt32(group.endCharCode)) {
+							outGlyphs[i] = (CGGlyph)(OSSwapBigToHostInt32(group.startGlyphCode) + (c32 - OSSwapBigToHostInt32(group.startCharCode)));
+							break;
+						}
+					}
+					break;
 				}
 			}
 		}
