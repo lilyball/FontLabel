@@ -26,6 +26,14 @@
 @property (nonatomic, readonly) CGFloat ratio;
 @end
 
+#define kUnicodeHighSurrogateStart 0xD800
+#define kUnicodeHighSurrogateEnd 0xDBFF
+#define kUnicodeLowSurrogateStart 0xDC00
+#define kUnicodeLowSurrogateEnd 0xDFFF
+#define UnicharIsHighSurrogate(c) (c >= kUnicodeHighSurrogateStart && c <= kUnicodeHighSurrogateEnd)
+#define UnicharIsLowSurrogate(c) (c >= kUnicodeLowSurrogateStart && c <= kUnicodeLowSurrogateEnd)
+#define ConvertSurrogatePairToUTF32(high, low) ((UInt32)((high - 0xD800) * 0x400 + (low - 0xDC00) + 0x10000))
+
 typedef enum {
 	kFontTableFormat4 = 4,
 	kFontTableFormat12 = 12,
@@ -156,9 +164,10 @@ static fontTable *readFontTableFromCGFont(CGFontRef font) {
 }
 
 // outGlyphs must be at least size n
-static void mapCharactersToGlyphsInFont(const fontTable *table, size_t n, unichar characters[], CGGlyph outGlyphs[]) {
+static void mapCharactersToGlyphsInFont(const fontTable *table, unichar characters[], size_t charLen, CGGlyph outGlyphs[], size_t *outGlyphLen) {
 	if (table != NULL) {
-		for (NSUInteger i = 0; i < n; i++) {
+		NSUInteger j = 0;
+		for (NSUInteger i = 0; i < charLen; i++, j++) {
 			unichar c = characters[i];
 			switch (table->format) {
 				case kFontTableFormat4: {
@@ -174,21 +183,21 @@ static void mapCharactersToGlyphsInFont(const fontTable *table, size_t n, unicha
 					if (!foundSegment) {
 						// no segment
 						// this is an invalid font
-						outGlyphs[i] = 0;
+						outGlyphs[j] = 0;
 					} else {
 						UInt16 startCode = OSReadBigInt16(table->cmap.format4.startCodes, segOffset);
 						if (!(startCode <= c)) {
 							// the code falls in a hole between segments
-							outGlyphs[i] = 0;
+							outGlyphs[j] = 0;
 						} else {
 							UInt16 idRangeOffset = OSReadBigInt16(table->cmap.format4.idRangeOffsets, segOffset);
 							if (idRangeOffset == 0) {
 								UInt16 idDelta = OSReadBigInt16(table->cmap.format4.idDeltas, segOffset);
-								outGlyphs[i] = (c + idDelta) % 65536;
+								outGlyphs[j] = (c + idDelta) % 65536;
 							} else {
 								// use the glyphIndexArray
 								UInt16 glyphOffset = idRangeOffset + 2 * (c - startCode);
-								outGlyphs[i] = OSReadBigInt16(&((UInt8*)table->cmap.format4.idRangeOffsets)[segOffset], glyphOffset);
+								outGlyphs[j] = OSReadBigInt16(&((UInt8*)table->cmap.format4.idRangeOffsets)[segOffset], glyphOffset);
 							}
 						}
 					}
@@ -196,27 +205,23 @@ static void mapCharactersToGlyphsInFont(const fontTable *table, size_t n, unicha
 				}
 				case kFontTableFormat12: {
 					UInt32 c32 = c;
-					if (c >= 0xD800 && c <= 0xDBFF) {
-						// c is a high surrogate
-						if (i+1 < n) { // do we have another character after this one?
+					if (UnicharIsHighSurrogate(c)) {
+						if (i+1 < charLen) { // do we have another character after this one?
 							unichar cc = characters[i+1];
-							if (cc >= 0xDC00 && cc <= 0xDFFF) {
-								// cc is a low surrogate
-								c32 = (c - 0xD800) * 0x400 + (cc - 0xDC00) + 0x10000;
-#warning Surrogate pairs aren't truly supported yet
-								outGlyphs[i] = 0;
+							if (UnicharIsLowSurrogate(cc)) {
+								c32 = ConvertSurrogatePairToUTF32(c, cc);
 								i++;
 							}
 						}
 					}
-					for (UInt32 j = 0;; j++) {
-						if (j >= table->cmap.format12.nGroups) {
-							outGlyphs[i] = 0;
+					for (UInt32 idx = 0;; idx++) {
+						if (idx >= table->cmap.format12.nGroups) {
+							outGlyphs[j] = 0;
 							break;
 						}
-						__typeof__(table->cmap.format12.groups[j]) group = table->cmap.format12.groups[j];
+						__typeof__(table->cmap.format12.groups[idx]) group = table->cmap.format12.groups[idx];
 						if (c32 >= OSSwapBigToHostInt32(group.startCharCode) && c32 <= OSSwapBigToHostInt32(group.endCharCode)) {
-							outGlyphs[i] = (CGGlyph)(OSSwapBigToHostInt32(group.startGlyphCode) + (c32 - OSSwapBigToHostInt32(group.startCharCode)));
+							outGlyphs[j] = (CGGlyph)(OSSwapBigToHostInt32(group.startGlyphCode) + (c32 - OSSwapBigToHostInt32(group.startCharCode)));
 							break;
 						}
 					}
@@ -224,9 +229,11 @@ static void mapCharactersToGlyphsInFont(const fontTable *table, size_t n, unicha
 				}
 			}
 		}
+		if (outGlyphLen != NULL) *outGlyphLen = j;
 	} else {
 		// we have no table, so just null out the glyphs
-		bzero(outGlyphs, n*sizeof(CGGlyph));
+		bzero(outGlyphs, charLen*sizeof(CGGlyph));
+		if (outGlyphLen != NULL) *outGlyphLen = 0;
 	}
 }
 
@@ -308,13 +315,17 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 		size_t rowLen = i - idx;
 		idx = i + 1;
 		CGGlyph glyphs[(rowLen ?: 1)]; // 0-sized arrays are undefined, so ensure we declare at least 1 elt
-		mapCharactersToGlyphsInFont(table, rowLen, charPtr, glyphs);
+		size_t glyphLen;
+		mapCharactersToGlyphsInFont(table, charPtr, rowLen, glyphs, &glyphLen);
 		// Get the advances for the glyphs
-		int advances[(rowLen ?: 1)];
-		CGFloat widths[(rowLen ?: 1)];
-		CGSize rowSize = mapGlyphsToAdvancesInFont(font, rowLen, glyphs, advances, widths);
+		int advances[(glyphLen ?: 1)];
+		CGFloat widths[(glyphLen ?: 1)];
+		CGSize rowSize = mapGlyphsToAdvancesInFont(font, glyphLen, glyphs, advances, widths);
+		NSUInteger glyphIdx = 0;
 		NSUInteger rowIdx = 0;
 		do {
+			NSUInteger softGlyphLen = glyphLen - glyphIdx;
+			NSUInteger skipGlyphIdx = 0;
 			NSUInteger softRowLen = rowLen - rowIdx;
 			NSUInteger skipRowIdx = 0;
 			CGFloat curWidth = rowSize.width;
@@ -332,40 +343,51 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 			if (curWidth > constrainedSize.width) {
 				// wrap to a new line
 				CGFloat skipWidth = 0;
-				NSUInteger lastSpace = 0;
+				NSUInteger lastRowSpace = 0;
+				NSUInteger lastGlyphSpace = 0;
 				CGFloat lastSpaceWidth = 0;
 				curWidth = 0;
-				for (NSUInteger j = rowIdx; j < rowLen; j++) {
+				for (NSUInteger j = glyphIdx, cj = rowIdx; j < glyphLen; j++, cj++) {
 					CGFloat newWidth = curWidth + widths[j];
+					// if we're at the start of a surrogate pair, skip the high surrogate
+					// any character-testing we do will never match any surrogate, so it doesn't matter
+					// which of the pair we test against, and this keeps our character count in sync
+					if (UnicharIsHighSurrogate(charPtr[cj]) && cj+1 < rowLen && UnicharIsLowSurrogate(charPtr[cj+1])) cj++;
 					// never wrap if we haven't consumed at least 1 character
-					if (newWidth > constrainedSize.width && j > rowIdx) {
+					if (newWidth > constrainedSize.width && j > glyphIdx) {
 						// we've gone over the limit now
-						if (charPtr[j] == (unichar)' ') {
+						if (charPtr[cj] == (unichar)' ') {
 							// we're at a space already, just break here regardless of the line break mode
 							// walk backwards to find the begnining of this run of spaces
-							for (NSUInteger k = j-1; k >= rowIdx && charPtr[k] == (unichar)' '; k--) {
+							for (NSUInteger k = j-1, ck = cj-1; k >= glyphIdx && charPtr[ck] == (unichar)' '; k--, ck--) {
 								curWidth -= widths[k];
 								skipWidth += widths[k];
 								j = k;
+								cj = ck;
 							}
-							softRowLen = j - rowIdx;
-						} else if (lastSpace == 0 || lineBreakMode == UILineBreakModeCharacterWrap ||
+							softGlyphLen = j - glyphIdx;
+							softRowLen = cj - rowIdx;
+						} else if (lastRowSpace == 0 || lineBreakMode == UILineBreakModeCharacterWrap ||
 								   (lastLine && (lineBreakMode == UILineBreakModeTailTruncation ||
 												 lineBreakMode == UILineBreakModeMiddleTruncation ||
 												 lineBreakMode == UILineBreakModeHeadTruncation))) {
 							// if this is the first word, fall back to character wrap instead
-							softRowLen = j - rowIdx;
+							softGlyphLen = j - glyphIdx;
+							softRowLen = cj - rowIdx;
 						} else {
-							softRowLen = lastSpace - rowIdx;
+							softGlyphLen = lastGlyphSpace - glyphIdx;
+							softRowLen = lastRowSpace - rowIdx;
 							curWidth = lastSpaceWidth;
 						}
-						while (rowIdx + softRowLen + skipRowIdx < rowLen && charPtr[rowIdx+softRowLen+skipRowIdx] == (unichar)' ') {
-							skipWidth += widths[rowIdx+softRowLen+skipRowIdx];
+						while (glyphIdx + softGlyphLen + skipGlyphIdx < glyphLen && charPtr[rowIdx+softRowLen+skipRowIdx] == (unichar)' ') {
+							skipWidth += widths[glyphIdx+softGlyphLen+skipGlyphIdx];
+							skipGlyphIdx++;
 							skipRowIdx++;
 						}
 						break;
-					} else if (charPtr[j] == (unichar)' ') {
-						lastSpace = j;
+					} else if (charPtr[cj] == (unichar)' ') {
+						lastGlyphSpace = j;
+						lastRowSpace = cj;
 						lastSpaceWidth = curWidth;
 					}
 					curWidth = newWidth;
@@ -374,7 +396,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 			}
 			if (lastLine) {
 				// we're on the last line, check for truncation
-				if (rowIdx + softRowLen < rowLen || idx < len) {
+				if (glyphIdx + softGlyphLen < glyphLen || idx < len) {
 					// there's still remaining text
 					if (lineBreakMode == UILineBreakModeTailTruncation ||
 						lineBreakMode == UILineBreakModeMiddleTruncation ||
@@ -382,34 +404,45 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 						//softRowLen = truncationRowLen;
 						unichar ellipsis = 0x2026; // ellipsis (…)
 						CGGlyph ellipsisGlyph;
-						mapCharactersToGlyphsInFont(table, 1, &ellipsis, &ellipsisGlyph);
+						mapCharactersToGlyphsInFont(table, &ellipsis, 1, &ellipsisGlyph, NULL);
 						int ellipsisAdvance;
 						CGFloat ellipsisWidth;
 						mapGlyphsToAdvancesInFont(font, 1, &ellipsisGlyph, &ellipsisAdvance, &ellipsisWidth);
 						switch (lineBreakMode) {
 							case UILineBreakModeTailTruncation: {
-								while (curWidth + ellipsisWidth > constrainedSize.width && softRowLen > 1) {
+								while (curWidth + ellipsisWidth > constrainedSize.width && softGlyphLen > 1) {
 									softRowLen--;
-									curWidth -= widths[rowIdx+softRowLen];
+									softGlyphLen--;
+									curWidth -= widths[glyphIdx+softGlyphLen];
 								}
 								// keep going backwards if we've stopped at a space or just after the first letter
 								// of a multi-letter word
-								if (softRowLen > 1 && charPtr[rowIdx+softRowLen-1] != (unichar)' ' &&
-									charPtr[rowIdx+softRowLen-2] == (unichar)' ') {
-									// we're right after the first letter of a word. Is it a multi-letter word?
-									NSCharacterSet *set = [NSCharacterSet alphanumericCharacterSet];
-									if (rowIdx+softRowLen < rowLen && [set characterIsMember:charPtr[rowIdx+softRowLen]]) {
-										softRowLen--;
-										curWidth -= widths[rowIdx+softRowLen];
+								if (softGlyphLen > 1 && charPtr[rowIdx+softRowLen-1] != (unichar)' ') {
+									// handle surrogate pairs properly
+									NSUInteger offset = 2;
+									if (UnicharIsHighSurrogate(charPtr[rowIdx+softRowLen-1]) &&
+										UnicharIsLowSurrogate(charPtr[rowIdx+softRowLen-2])) {
+										offset = 3;
+									}
+									if (softGlyphLen >= offset && charPtr[rowIdx+softRowLen-offset] == (unichar)' ') {
+										// we're right after the first letter of a word. Is it a multi-letter word?
+										NSCharacterSet *set = [NSCharacterSet alphanumericCharacterSet];
+										if (rowIdx+softRowLen < rowLen && [set characterIsMember:charPtr[rowIdx+softRowLen]]) {
+											softRowLen--;
+											softGlyphLen--;
+											curWidth -= widths[glyphIdx+softGlyphLen];
+										}
 									}
 								}
 								while (softRowLen > 1 && charPtr[rowIdx+softRowLen-1] == (unichar)' ') {
 									softRowLen--;
-									curWidth -= widths[rowIdx+softRowLen];
+									softGlyphLen--;
+									curWidth -= widths[glyphIdx+softGlyphLen];
 								}
 								curWidth += ellipsisWidth;
-								glyphs[rowIdx+softRowLen] = ellipsisGlyph;
+								glyphs[glyphIdx+softGlyphLen] = ellipsisGlyph;
 								softRowLen++;
+								softGlyphLen++;
 								break;
 							}
 							default:
@@ -431,11 +464,12 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 						drawPoint.x = constrainedSize.width - curWidth;
 						break;
 				}
-				CGContextShowGlyphsAtPoint(ctx, drawPoint.x, drawPoint.y + ascender, &glyphs[rowIdx], softRowLen);
+				CGContextShowGlyphsAtPoint(ctx, drawPoint.x, drawPoint.y + ascender, &glyphs[glyphIdx], softGlyphLen);
 				drawPoint.y += rowSize.height;
 			}
+			glyphIdx += softGlyphLen + skipGlyphIdx;
 			rowIdx += softRowLen + skipRowIdx;
-		} while (!lastLine && rowIdx < rowLen);
+		} while (!lastLine && glyphIdx < glyphLen);
 	}
 	freeFontTable(table);
 	
