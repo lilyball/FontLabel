@@ -7,15 +7,7 @@
 //
 
 #import "ZAttributedString.h"
-
-@interface ZAttributeRun : NSObject <NSCopying, NSCoding> {
-	NSUInteger _index;
-	NSMutableDictionary *_attributes;
-}
-@property (nonatomic, readonly) NSUInteger index;
-@property (nonatomic, readonly) NSMutableDictionary *attributes;
-- (id)initWithIndex:(NSUInteger)idx attributes:(NSDictionary *)attrs;
-@end
+#import "ZAttributedStringPrivate.h"
 
 @interface ZAttributedString ()
 - (NSUInteger)indexOfEffectiveAttributeRunForIndex:(NSUInteger)index;
@@ -24,8 +16,13 @@
 							inRange:(NSRange)rangeLimit uniquingOnName:(NSString *)attributeName;
 @end
 
+@interface ZAttributedString ()
+@property (nonatomic, readonly) NSArray *attributes;
+@end
+
 @implementation ZAttributedString
 @synthesize string = _buffer;
+@synthesize attributes = _attributes;
 
 - (id)initWithAttributedString:(ZAttributedString *)attr {
 	NSParameterAssert(attr != nil);
@@ -44,7 +41,7 @@
 	NSParameterAssert(str != nil);
 	if (self = [super init]) {
 		_buffer = [str mutableCopy];
-		_attributes = [[NSArray alloc] initWithObjects:[[[ZAttributeRun alloc] initWithIndex:0 attributes:attributes] autorelease], nil];
+		_attributes = [[NSArray alloc] initWithObjects:[ZAttributeRun attributeRunWithIndex:0 attributes:attributes], nil];
 	}
 	return self;
 }
@@ -489,6 +486,10 @@
 @implementation ZAttributeRun
 @synthesize index = _index;
 @synthesize attributes = _attributes;
+
++ (id)attributeRunWithIndex:(NSUInteger)idx attributes:(NSDictionary *)attrs {
+	return [[[self alloc] initWithIndex:idx attributes:attrs] autorelease];
+}
 
 - (id)initWithIndex:(NSUInteger)idx attributes:(NSDictionary *)attrs {
 	NSParameterAssert(attrs != nil);

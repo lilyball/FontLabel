@@ -49,6 +49,7 @@
 		433B50650FB50375000B10FB /* FontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontManager.m; sourceTree = "<group>"; };
 		435E454D106981FA00F86F0E /* ZAttributedString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZAttributedString.h; sourceTree = "<group>"; };
 		435E454E106981FA00F86F0E /* ZAttributedString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZAttributedString.m; sourceTree = "<group>"; };
+		435E46BB106AD90600F86F0E /* ZAttributedStringPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZAttributedStringPrivate.h; sourceTree = "<group>"; };
 		437BC2930FFD2E21001C57E9 /* ZFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZFont.h; sourceTree = "<group>"; };
 		437BC2940FFD2E21001C57E9 /* ZFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZFont.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -153,6 +154,7 @@
 				437BC2930FFD2E21001C57E9 /* ZFont.h */,
 				437BC2940FFD2E21001C57E9 /* ZFont.m */,
 				435E454D106981FA00F86F0E /* ZAttributedString.h */,
+				435E46BB106AD90600F86F0E /* ZAttributedStringPrivate.h */,
 				435E454E106981FA00F86F0E /* ZAttributedString.m */,
 			);
 			path = FontLabel;

@@ -20,6 +20,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ZAttributedString.h"
 
 @class ZFont;
 
@@ -46,4 +47,15 @@
 - (CGSize)drawInRect:(CGRect)rect withZFont:(ZFont *)font lineBreakMode:(UILineBreakMode)lineBreakMode;
 - (CGSize)drawInRect:(CGRect)rect withZFont:(ZFont *)font lineBreakMode:(UILineBreakMode)lineBreakMode
 		   alignment:(UITextAlignment)alignment;
+@end
+
+@interface ZAttributedString (ZAttributedStringDrawing)
+- (CGSize)size;
+- (CGSize)sizeConstrainedToSize:(CGSize)size;
+- (CGSize)sizeConstrainedToSize:(CGSize)size lineBreakMode:(UILineBreakMode)lineBreakMode;
+- (CGSize)drawAtPoint:(CGPoint)point;
+- (CGSize)drawAtPoint:(CGPoint)point forWidth:(CGFloat)width lineBreakMode:(UILineBreakMode)lineBreakMode;
+- (CGSize)drawInRect:(CGRect)rect;
+- (CGSize)drawInRect:(CGRect)rect withLineBreakMode:(UILineBreakMode)lineBreakMode;
+- (CGSize)drawInRect:(CGRect)rect withLineBreakMode:(UILineBreakMode)lineBreakMode alignment:(UITextAlignment)alignment;
 @end
