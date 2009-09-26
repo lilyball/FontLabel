@@ -38,7 +38,6 @@
 }
 
 - (id)initWithString:(NSString *)str attributes:(NSDictionary *)attributes {
-	NSParameterAssert(str != nil);
 	if (self = [super init]) {
 		_buffer = [str mutableCopy];
 		_attributes = [[NSArray alloc] initWithObjects:[ZAttributeRun attributeRunWithIndex:0 attributes:attributes], nil];
@@ -73,6 +72,33 @@
 
 - (NSUInteger)length {
 	return [_buffer length];
+}
+
+- (NSString *)description {
+	NSMutableArray *components = [NSMutableArray arrayWithCapacity:[_attributes count]*2];
+	NSRange range = NSMakeRange(0, 0);
+	for (NSUInteger i = 0; i <= [_attributes count]; i++) {
+		range.location = NSMaxRange(range);
+		ZAttributeRun *run;
+		if (i < [_attributes count]) {
+			run = [_attributes objectAtIndex:i];
+			range.length = run.index - range.location;
+		} else {
+			run = nil;
+			range.length = [_buffer length] - range.location;
+		}
+		if (range.length > 0) {
+			[components addObject:[NSString stringWithFormat:@"\"%@\"", [_buffer substringWithRange:range]]];
+		}
+		if (run != nil) {
+			NSMutableArray *attrDesc = [NSMutableArray arrayWithCapacity:[run.attributes count]];
+			for (id key in run.attributes) {
+				[attrDesc addObject:[NSString stringWithFormat:@"%@: %@", key, [run.attributes objectForKey:key]]];
+			}
+			[components addObject:[NSString stringWithFormat:@"{%@}", [attrDesc componentsJoinedByString:@", "]]];
+		}
+	}
+	return [NSString stringWithFormat:@"%@", [components componentsJoinedByString:@" "]];
 }
 
 - (id)attribute:(NSString *)attributeName atIndex:(NSUInteger)index effectiveRange:(NSRangePointer)aRange {
@@ -210,6 +236,10 @@
 	return ([_buffer isEqualToString:otherString->_buffer] && [_attributes isEqualToArray:otherString->_attributes]);
 }
 
+- (BOOL)isEqual:(id)object {
+	return [object isKindOfClass:[ZAttributedString class]] && [self isEqualToAttributedString:(ZAttributedString *)object];
+}
+
 #pragma mark -
 
 - (NSUInteger)indexOfEffectiveAttributeRunForIndex:(NSUInteger)index {
@@ -291,14 +321,14 @@
 				}
 			}
 			aRange->location = MAX(run.index, rangeLimit.location);
-			aRange->length = MIN((endRun ? endRun.index : [_buffer length]), NSMaxRange(rangeLimit)) - run.index;
+			aRange->length = MIN((endRun ? endRun.index : [_buffer length]), NSMaxRange(rangeLimit)) - aRange->location;
 		} else {
 			// with no attribute name, we don't need to do any real searching,
 			// as we already guarantee each run has unique attributes.
 			// just make sure to clip the range to the rangeLimit
 			aRange->location = MAX(run.index, rangeLimit.location);
 			ZAttributeRun *endRun = (runIndex+1 < [_attributes count] ? [_attributes objectAtIndex:runIndex+1] : nil);
-			aRange->length = MIN((endRun ? endRun.index : [_buffer length]), NSMaxRange(rangeLimit)) - run.index;
+			aRange->length = MIN((endRun ? endRun.index : [_buffer length]), NSMaxRange(rangeLimit)) - aRange->location;
 		}
 	}
 	return run.attributes;
@@ -448,7 +478,6 @@
 }
 
 - (void)cleanupAttributesInRange:(NSRange)range {
-	if (range.length == 0) return;
 	// expand the range to include one surrounding attribute on each side
 	if (range.location > 0) {
 		range.location -= 1;
@@ -460,6 +489,7 @@
 		// make sure the range is capped to the attributes count
 		range.length = [_attributes count] - range.location;
 	}
+	if (range.length == 0) return;
 	ZAttributeRun *lastRun = [_attributes objectAtIndex:range.location];
 	for (NSUInteger i = range.location+1; i < NSMaxRange(range);) {
 		ZAttributeRun *run = [_attributes objectAtIndex:i];
@@ -492,7 +522,6 @@
 }
 
 - (id)initWithIndex:(NSUInteger)idx attributes:(NSDictionary *)attrs {
-	NSParameterAssert(attrs != nil);
 	NSParameterAssert(idx >= 0);
 	if (self = [super init]) {
 		_index = idx;
@@ -524,6 +553,12 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder {
 	[aCoder encodeObject:[NSNumber numberWithUnsignedInteger:_index] forKey:@"index"];
 	[aCoder encodeObject:_attributes forKey:@"attributes"];
+}
+
+- (BOOL)isEqual:(id)object {
+	if (![object isKindOfClass:[ZAttributeRun class]]) return NO;
+	ZAttributeRun *other = (ZAttributeRun *)object;
+	return _index == other->_index && [_attributes isEqualToDictionary:other->_attributes];
 }
 
 - (void)dealloc {
