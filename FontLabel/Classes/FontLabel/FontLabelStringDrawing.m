@@ -262,9 +262,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 	
 	ZFont *font = [[[attributes objectAtIndex:0] attributes] objectForKey:ZFontAttributeName];
 	if (font == nil) {
-		CGFontRef systemFont = CGFontCreateWithFontName((CFStringRef)[UIFont systemFontOfSize:12].fontName);
-		font = [ZFont fontWithCGFont:systemFont size:12];
-		CGFontRelease(systemFont);
+		font = [ZFont fontWithUIFont:[UIFont systemFontOfSize:12]];
 	}
 	
 	// Map the characters to glyphs
