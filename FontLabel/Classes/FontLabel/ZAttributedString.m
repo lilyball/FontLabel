@@ -40,7 +40,7 @@
 - (id)initWithString:(NSString *)str attributes:(NSDictionary *)attributes {
 	if (self = [super init]) {
 		_buffer = [str mutableCopy];
-		_attributes = [[NSArray alloc] initWithObjects:[ZAttributeRun attributeRunWithIndex:0 attributes:attributes], nil];
+		_attributes = [[NSMutableArray alloc] initWithObjects:[ZAttributeRun attributeRunWithIndex:0 attributes:attributes], nil];
 	}
 	return self;
 }
@@ -432,9 +432,9 @@
 	for (;;first++) {
 		if (first >= [_attributes count]) {
 			// we didn't find a run
+			first = [_attributes count];
 			ZAttributeRun *newRun = [[ZAttributeRun alloc] initWithIndex:range.location attributes:lastRun.attributes];
 			[_attributes addObject:newRun];
-			first = [_attributes count];
 			[newRun release];
 			break;
 		}
@@ -447,6 +447,7 @@
 			[newRun release];
 			break;
 		}
+		lastRun = run;
 	}
 	
 	if (((ZAttributeRun *)[_attributes lastObject]).index < NSMaxRange(range)) {
@@ -472,6 +473,13 @@
 				firstAfter = idx;
 				break;
 			}
+		}
+		if ([[_attributes objectAtIndex:firstAfter] index] > NSMaxRange(range)) {
+			// the first after is too far after, insert another run!
+			ZAttributeRun *newRun = [[ZAttributeRun alloc] initWithIndex:NSMaxRange(range)
+															  attributes:[[_attributes objectAtIndex:firstAfter-1] attributes]];
+			[_attributes insertObject:newRun atIndex:firstAfter];
+			[newRun release];
 		}
 		return NSMakeRange(lastIn, firstAfter - lastIn);
 	}
@@ -553,6 +561,15 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder {
 	[aCoder encodeObject:[NSNumber numberWithUnsignedInteger:_index] forKey:@"index"];
 	[aCoder encodeObject:_attributes forKey:@"attributes"];
+}
+
+- (NSString *)description {
+	NSMutableArray *components = [NSMutableArray arrayWithCapacity:[_attributes count]];
+	for (id key in _attributes) {
+		[components addObject:[NSString stringWithFormat:@"%@=%@", key, [_attributes objectForKey:key]]];
+	}
+	return [NSString stringWithFormat:@"<%@: %p index=%lu attributes={%@}>",
+			NSStringFromClass([self class]), self, (unsigned long)_index, [components componentsJoinedByString:@" "]];
 }
 
 - (BOOL)isEqual:(id)object {

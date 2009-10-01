@@ -77,14 +77,60 @@
 }
 
 - (void)testAttributedSubstring {
-	ZAttributedString *str = [[[ZAttributedString alloc] initWithString:@"testing"] autorelease];
+	ZMutableAttributedString *str = [[[ZMutableAttributedString alloc] initWithString:@"testing"
+																		   attributes:[NSDictionary dictionaryWithObjectsAndKeys:
+																					   @"blah", @"baz", nil]] autorelease];
+	[str addAttribute:@"foo" value:@"bar" range:NSMakeRange(4, 3)];
+	NSLog(@"str: %@", str);
 	ZAttributedString *substr = [str attributedSubstringFromRange:NSMakeRange(2, 4)];
-	STAssertEqualObjects(substr.string, @"stin", @"");
+	STAssertEqualObjects(substr.string, @"stin", nil);
+	NSRange range;
+	NSLog(@"substr: %@", substr);
+	STAssertEqualObjects([substr attributesAtIndex:0 effectiveRange:&range],
+						 ([NSDictionary dictionaryWithObjectsAndKeys:@"blah", @"baz", nil]), nil);
+	STAssertEquals(range, NSMakeRange(0, 2), nil);
+	STAssertEqualObjects([substr attributesAtIndex:2 effectiveRange:&range],
+						 ([NSDictionary dictionaryWithObjectsAndKeys:@"blah", @"baz", @"bar", @"foo", nil]), nil);
+	STAssertEquals(range, NSMakeRange(2, 2), nil);
+}
+
+- (void)testCoding {
+	ZAttributedString *str = [[[ZAttributedString alloc] initWithString:@"test"
+															 attributes:[NSDictionary dictionaryWithObjectsAndKeys:
+																		 @"foo", @"bar",
+																		 @"blah", @"baz",
+																		 nil]] autorelease];
+	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:str];
+	ZAttributedString *newstr = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+	STAssertEqualObjects(str, newstr, @"");
 }
 
 - (void)testMutableCopy {
 	ZAttributedString *str = [[[ZAttributedString alloc] initWithString:@"test"] autorelease];
 	STAssertTrue([[[str mutableCopy] autorelease] isKindOfClass:[ZMutableAttributedString class]],
 				 @"expected ZMutableAttributedString, was %@", NSStringFromClass([str class]));
+}
+
+- (void)testAddAttribute {
+	ZMutableAttributedString *str = [[[ZMutableAttributedString alloc] initWithString:@"testing"
+																		   attributes:[NSDictionary dictionaryWithObjectsAndKeys:
+																					   @"blah", @"baz", nil]] autorelease];
+	[str addAttribute:@"foo" value:@"bar" range:NSMakeRange(2, 4)];
+	NSRange range;
+	id foo = [str attribute:@"foo" atIndex:0 longestEffectiveRange:&range inRange:NSMakeRange(0, 7)];
+	id baz = [str attribute:@"baz" atIndex:0 longestEffectiveRange:NULL inRange:NSMakeRange(0, 7)];
+	STAssertNil(foo, @"");
+	STAssertEqualObjects(baz, @"blah", @"");
+	STAssertEquals(range, NSMakeRange(0, 2), @"");
+	foo = [str attribute:@"foo" atIndex:3 longestEffectiveRange:&range inRange:NSMakeRange(0, 7)];
+	baz = [str attribute:@"baz" atIndex:3 longestEffectiveRange:NULL inRange:NSMakeRange(0, 7)];
+	STAssertEqualObjects(foo, @"bar", @"");
+	STAssertEqualObjects(baz, @"blah", @"");
+	STAssertEquals(range, NSMakeRange(2, 4), @"");
+	foo = [str attribute:@"foo" atIndex:6 longestEffectiveRange:&range inRange:NSMakeRange(0, 7)];
+	baz = [str attribute:@"baz" atIndex:6 longestEffectiveRange:NULL inRange:NSMakeRange(0, 7)];
+	STAssertNil(foo, @"");
+	STAssertEqualObjects(baz, @"blah", @"");
+	STAssertEquals(range, NSMakeRange(6, 1), @"");
 }
 @end
