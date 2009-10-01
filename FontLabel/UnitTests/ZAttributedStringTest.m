@@ -76,11 +76,11 @@
 	STAssertEquals(range, NSMakeRange(0, 7), @"");
 }
 
-//- (void)testAttributedSubstring {
-//	ZAttributedString *str = [[[ZAttributedString alloc] initWithString:@"testing"] autorelease];
-//	//ZAttributedString *substr = [str attributedSubstringFromRange:NSMakeRange(2, 4)];
-//	//STAssertEqualObjects(substr.string, @"stin", @"");
-//}
+- (void)testAttributedSubstring {
+	ZAttributedString *str = [[[ZAttributedString alloc] initWithString:@"testing"] autorelease];
+	ZAttributedString *substr = [str attributedSubstringFromRange:NSMakeRange(2, 4)];
+	STAssertEqualObjects(substr.string, @"stin", @"");
+}
 
 - (void)testMutableCopy {
 	ZAttributedString *str = [[[ZAttributedString alloc] initWithString:@"test"] autorelease];

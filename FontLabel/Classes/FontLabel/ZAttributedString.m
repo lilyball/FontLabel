@@ -120,7 +120,7 @@
 		[newStr deleteCharactersInRange:NSMakeRange(0, aRange.location)];
 	}
 	if (NSMaxRange(aRange) < [_buffer length]) {
-		[newStr deleteCharactersInRange:NSMakeRange(NSMaxRange(aRange), [_buffer length] - NSMaxRange(aRange))];
+		[newStr deleteCharactersInRange:NSMakeRange(aRange.length, [_buffer length] - NSMaxRange(aRange))];
 	}
 	return [newStr autorelease];
 }
