@@ -133,6 +133,23 @@
 	STAssertEquals(range, NSMakeRange(4, 3), nil);
 }
 
+- (void)testRemoveAttribute {
+	ZMutableAttributedString *str = [[[ZMutableAttributedString alloc] initWithString:@"testing"
+																		   attributes:[NSDictionary dictionaryWithObjectsAndKeys:
+																					   @"bar", @"foo", nil]] autorelease];
+	[str removeAttribute:@"foo" range:NSMakeRange(2, 2)];
+	STAssertEqualObjects(str.string, @"testing", nil);
+	NSRange range;
+	STAssertEqualObjects([str attributesAtIndex:0 effectiveRange:&range],
+						 ([NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil]), nil);
+	STAssertEquals(range, NSMakeRange(0, 2), nil);
+	STAssertEqualObjects([str attributesAtIndex:2 effectiveRange:&range], [NSDictionary dictionary], nil);
+	STAssertEquals(range, NSMakeRange(2, 2), nil);
+	STAssertEqualObjects([str attributesAtIndex:4 effectiveRange:&range],
+						 ([NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil]), nil);
+	STAssertEquals(range, NSMakeRange(4, 3), nil);
+}
+
 - (void)testCoding {
 	ZAttributedString *str = [[[ZAttributedString alloc] initWithString:@"test"
 															 attributes:[NSDictionary dictionaryWithObjectsAndKeys:
