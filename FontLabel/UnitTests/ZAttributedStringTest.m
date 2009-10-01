@@ -94,6 +94,45 @@
 	STAssertEquals(range, NSMakeRange(2, 2), nil);
 }
 
+- (void)testAppendAttributedString {
+	ZMutableAttributedString *str = [[[ZMutableAttributedString alloc] initWithString:@"test"
+																		   attributes:[NSDictionary dictionaryWithObjectsAndKeys:
+																					   @"bar", @"foo", nil]] autorelease];
+	ZAttributedString *newstr = [[[ZAttributedString alloc] initWithString:@"ing"
+																attributes:[NSDictionary dictionaryWithObjectsAndKeys:
+																			@"blah", @"baz", nil]] autorelease];
+	[str appendAttributedString:newstr];
+	STAssertEqualObjects(str.string, @"testing", nil);
+	NSRange range;
+	STAssertEqualObjects([str attributesAtIndex:0 effectiveRange:&range],
+						 ([NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil]), nil);
+	STAssertEquals(range, NSMakeRange(0, 4), nil);
+	STAssertEqualObjects([str attributesAtIndex:4 effectiveRange:&range],
+						 ([NSDictionary dictionaryWithObjectsAndKeys:@"blah", @"baz", nil]), nil);
+	STAssertEquals(range, NSMakeRange(4, 3), nil);
+}
+
+- (void)testInsertAttributedString {
+	ZMutableAttributedString *str = [[[ZMutableAttributedString alloc] initWithString:@"teing"
+																		   attributes:[NSDictionary dictionaryWithObjectsAndKeys:
+																					   @"bar", @"foo", nil]] autorelease];
+	ZAttributedString *newstr = [[[ZAttributedString alloc] initWithString:@"st"
+																attributes:[NSDictionary dictionaryWithObjectsAndKeys:
+																			@"blah", @"baz", nil]] autorelease];
+	[str insertAttributedString:newstr atIndex:2];
+	STAssertEqualObjects(str.string, @"testing", nil);
+	NSRange range;
+	STAssertEqualObjects([str attributesAtIndex:0 effectiveRange:&range],
+						 ([NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil]), nil);
+	STAssertEquals(range, NSMakeRange(0, 2), nil);
+	STAssertEqualObjects([str attributesAtIndex:2 effectiveRange:&range],
+						 ([NSDictionary dictionaryWithObjectsAndKeys:@"blah", @"baz", nil]), nil);
+	STAssertEquals(range, NSMakeRange(2, 2), nil);
+	STAssertEqualObjects([str attributesAtIndex:6 effectiveRange:&range],
+						 ([NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil]), nil);
+	STAssertEquals(range, NSMakeRange(4, 3), nil);
+}
+
 - (void)testCoding {
 	ZAttributedString *str = [[[ZAttributedString alloc] initWithString:@"test"
 															 attributes:[NSDictionary dictionaryWithObjectsAndKeys:
