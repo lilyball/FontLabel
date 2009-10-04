@@ -69,7 +69,9 @@ enum {
 	ZUnderlineStyleNone = 0x00,
 	ZUnderlineStyleSingle = 0x01
 };
+#define ZUnderlineStyleMask 0x00FF
 
 enum {
 	ZUnderlinePatternSolid = 0x0000
 };
+#define ZUnderlinePatternMask 0xFF00
