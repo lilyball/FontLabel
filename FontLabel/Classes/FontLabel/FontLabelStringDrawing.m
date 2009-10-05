@@ -388,7 +388,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 	NSUInteger glyphIdx;
 	
 #define READ_GLYPHS() do { \
-		mapCharactersToGlyphsInFont(currentTable, &characters[idx], (nextRunStart - currentRun.index), glyphs, &glyphCount); \
+		mapCharactersToGlyphsInFont(currentTable, &characters[currentRun.index], (nextRunStart - currentRun.index), glyphs, &glyphCount); \
 		mapGlyphsToAdvancesInFont(currentFont, (nextRunStart - currentRun.index), glyphs, advances); \
 		glyphIdx = 0; \
 	} while (0)
@@ -416,6 +416,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 			NSUInteger currentRunIdx;
 		} indexCache = { idx, glyphIdx, currentRunIdx };
 		CGSize lineSize = CGSizeMake(0, currentFont.leading);
+		CGFloat lineAscender = currentFont.ascender;
 		struct {
 			NSUInteger index;
 			NSUInteger glyphIndex;
@@ -432,8 +433,18 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 			} else {
 				if (idx >= nextRunStart) {
 					// cycle the font and table and grab the next set of glyphs
-					currentRunIdx++;
-					READ_RUN();
+					do {
+						currentRunIdx++;
+						READ_RUN();
+					} while (idx >= nextRunStart);
+					READ_GLYPHS();
+					// re-scan the characters to synchronize the glyph index
+					for (NSUInteger j = currentRun.index; j < idx; j++) {
+						if (UnicharIsHighSurrogate(characters[j]) && j+1<len && UnicharIsLowSurrogate(characters[j+1])) {
+							j++;
+						}
+						glyphIdx++;
+					}
 					if (currentFont.leading > lineSize.height) {
 						lineSize.height = currentFont.leading;
 						if (retValue.height + currentFont.ascender > constrainedSize.height) {
@@ -441,10 +452,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 							finishLine = YES;
 						}
 					}
-					// don't bother grabbing the next glyphs if we're truncating already
-					if (!lastLine) {
-						READ_GLYPHS();
-					}
+					lineAscender = MAX(lineAscender, currentFont.ascender);
 				}
 				unichar c = characters[idx];
 				if (c == (unichar)'\n' || c == 0x0085) { // U+0085 is the NEXT_LINE unicode character
@@ -468,18 +476,19 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 						(!lastLine || lineBreakMode != UILineBreakModeClip)) {
 						// we're doing some sort of word wrapping
 						idx = lastSpaceCache.index;
-						glyphIdx = lastSpaceCache.glyphIndex;
 						lineSize = lastSpaceCache.lineSize;
 						if (!lastLine) {
 							// re-check if this is the last line
 							if (lastSpaceCache.currentRunIdx != currentRunIdx) {
 								currentRunIdx = lastSpaceCache.currentRunIdx;
 								READ_RUN();
+								READ_GLYPHS();
 							}
 							if (retValue.height + lineSize.height + currentFont.ascender > constrainedSize.height) {
 								lastLine = YES;
 							}
 						}
+						glyphIdx = lastSpaceCache.glyphIndex;
 					}
 				}
 			}
@@ -499,8 +508,10 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 							idx--;
 						}
 						if (idx < currentRun.index) {
-							currentRunIdx--;
-							READ_RUN();
+							do {
+								currentRunIdx--;
+								READ_RUN();
+							} while (idx < currentRun.index);
 							READ_GLYPHS();
 							glyphIdx = glyphCount-1;
 						} else {
@@ -544,6 +555,8 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 					}
 					NSUInteger stopGlyphIdx = glyphIdx;
 					NSUInteger lastRunIdx = currentRunIdx;
+					NSUInteger stopCharIdx = idx;
+					idx = indexCache.index;
 					if (currentRunIdx != indexCache.currentRunIdx) {
 						currentRunIdx = indexCache.currentRunIdx;
 						READ_RUN();
@@ -559,8 +572,10 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 						NSUInteger numGlyphs;
 						if (drawIdx == lastRunIdx) {
 							numGlyphs = stopGlyphIdx - glyphIdx;
+							idx = stopCharIdx;
 						} else {
 							numGlyphs = glyphCount - glyphIdx;
+							idx = nextRunStart;
 						}
 						CGContextSetFont(ctx, currentFont.cgFont);
 						CGContextSetFontSize(ctx, currentFont.pointSize);
@@ -580,11 +595,11 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 							[foregroundColor setFill];
 						}
 						
-						CGContextShowGlyphsAtPoint(ctx, drawPoint.x, drawPoint.y + currentFont.ascender, &glyphs[glyphIdx], numGlyphs);
+						CGContextShowGlyphsAtPoint(ctx, drawPoint.x, drawPoint.y + lineAscender, &glyphs[glyphIdx], numGlyphs);
 						NSNumber *underlineStyle = getValueOrDefaultForRun(currentRun, ZUnderlineStyleAttributeName);
 						if ([underlineStyle	integerValue] & ZUnderlineStyleMask) {
 							// we only support single for the time being
-							UIRectFill(CGRectMake(drawPoint.x, drawPoint.y + currentFont.ascender, fragmentWidth, 1));
+							UIRectFill(CGRectMake(drawPoint.x, drawPoint.y + lineAscender, fragmentWidth, 1));
 						}
 						drawPoint.x += fragmentWidth;
 						glyphIdx += numGlyphs;
