@@ -137,11 +137,27 @@
 			[self.text drawInRect:rect withZFont:actualFont lineBreakMode:self.lineBreakMode alignment:self.textAlignment numberOfLines:self.numberOfLines];
 		}
 	} else {
-		CGSize size = [self.zAttributedText sizeConstrainedToSize:rect.size lineBreakMode:self.lineBreakMode numberOfLines:self.numberOfLines];
+		ZAttributedString *attStr = self.zAttributedText;
+		if (self.highlighted) {
+			// modify the string to change the base color
+			ZMutableAttributedString *mutStr = [[attStr mutableCopy] autorelease];
+			NSRange activeRange = NSMakeRange(0, attStr.length);
+			while (activeRange.length > 0) {
+				NSRange effective;
+				UIColor *color = [attStr attribute:ZForegroundColorAttributeName atIndex:activeRange.location
+							 longestEffectiveRange:&effective inRange:activeRange];
+				if (color == nil) {
+					[mutStr addAttribute:ZForegroundColorAttributeName value:[UIColor whiteColor] range:effective];
+				}
+				activeRange.location += effective.length, activeRange.length -= effective.length;
+			}
+			attStr = mutStr;
+		}
+		CGSize size = [attStr sizeConstrainedToSize:rect.size lineBreakMode:self.lineBreakMode numberOfLines:self.numberOfLines];
 		CGPoint point = rect.origin;
 		point.y += roundf((rect.size.height - size.height) / 2.0f);
 		rect = (CGRect){point, CGSizeMake(rect.size.width, size.height)};
-		[self.zAttributedText drawInRect:rect withLineBreakMode:self.lineBreakMode alignment:self.textAlignment numberOfLines:self.numberOfLines];
+		[attStr drawInRect:rect withLineBreakMode:self.lineBreakMode alignment:self.textAlignment numberOfLines:self.numberOfLines];
 	}
 }
 
