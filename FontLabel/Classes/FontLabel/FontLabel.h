@@ -27,7 +27,7 @@
 @interface FontLabel : UILabel {
 	void *reserved; // works around a bug in UILabel
 	ZFont *zFont;
-	ZAttributedString *attributedText;
+	ZAttributedString *zAttributedText;
 }
 @property (nonatomic, setter=setCGFont:) CGFontRef cgFont __AVAILABILITY_INTERNAL_DEPRECATED;
 @property (nonatomic, assign) CGFloat pointSize __AVAILABILITY_INTERNAL_DEPRECATED;
@@ -35,7 +35,7 @@
 // if attributedText is nil, fall back on using the inherited UILabel properties
 // if attributedText is non-nil, the font/text/textColor
 // in addition, adjustsFontSizeToFitWidth does not work with attributed text
-@property (nonatomic, copy) ZAttributedString *attributedText;
+@property (nonatomic, copy) ZAttributedString *zAttributedText;
 // -initWithFrame:fontName:pointSize: uses FontManager to look up the font name
 - (id)initWithFrame:(CGRect)frame fontName:(NSString *)fontName pointSize:(CGFloat)pointSize;
 - (id)initWithFrame:(CGRect)frame zFont:(ZFont *)font;

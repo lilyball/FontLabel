@@ -73,7 +73,7 @@
 	[str addAttribute:ZForegroundColorAttributeName value:[UIColor yellowColor] range:NSMakeRange(11, 10)];
 	[str addAttribute:ZBackgroundColorAttributeName value:[UIColor blueColor] range:NSMakeRange(11, 10)];
 	[str addAttribute:ZUnderlineStyleAttributeName value:[NSNumber numberWithInt:ZUnderlineStyleSingle] range:NSMakeRange(47, 9)];
-	label4.attributedText = str;
+	label4.zAttributedText = str;
 	[str release];
 	label4.textAlignment = UITextAlignmentLeft;
 	label4.backgroundColor = [UIColor lightGrayColor];

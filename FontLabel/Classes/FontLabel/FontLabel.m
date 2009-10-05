@@ -30,7 +30,7 @@
 
 @implementation FontLabel
 @synthesize zFont;
-@synthesize attributedText;
+@synthesize zAttributedText;
 
 - (id)initWithFrame:(CGRect)frame fontName:(NSString *)fontName pointSize:(CGFloat)pointSize {
 	return [self initWithFrame:frame zFont:[[FontManager sharedManager] zFontWithName:fontName pointSize:pointSize]];
@@ -67,21 +67,21 @@
 	}
 }
 
-- (void)setAttributedText:(ZAttributedString *)attStr {
-	if (attributedText != attStr) {
-		[attributedText release];
-		attributedText = [attStr copy];
+- (void)setZAttributedText:(ZAttributedString *)attStr {
+	if (zAttributedText != attStr) {
+		[zAttributedText release];
+		zAttributedText = [attStr copy];
 		[self setNeedsDisplay];
 	}
 }
 
 - (void)drawTextInRect:(CGRect)rect {
-	if (self.zFont == NULL && self.attributedText == nil) {
+	if (self.zFont == NULL && self.zAttributedText == nil) {
 		[super drawTextInRect:rect];
 		return;
 	}
 	
-	if (self.attributedText == nil) {
+	if (self.zAttributedText == nil) {
 		// this method is documented as setting the text color for us, but that doesn't appear to be the case
 		[self.textColor setFill];
 		
@@ -133,16 +133,16 @@
 			[self.text drawInRect:rect withZFont:actualFont lineBreakMode:self.lineBreakMode alignment:self.textAlignment numberOfLines:self.numberOfLines];
 		}
 	} else {
-		CGSize size = [self.attributedText sizeConstrainedToSize:rect.size lineBreakMode:self.lineBreakMode numberOfLines:self.numberOfLines];
+		CGSize size = [self.zAttributedText sizeConstrainedToSize:rect.size lineBreakMode:self.lineBreakMode numberOfLines:self.numberOfLines];
 		CGPoint point = rect.origin;
 		point.y += roundf((rect.size.height - size.height) / 2.0f);
 		rect = (CGRect){point, CGSizeMake(rect.size.width, size.height)};
-		[self.attributedText drawInRect:rect withLineBreakMode:self.lineBreakMode alignment:self.textAlignment numberOfLines:self.numberOfLines];
+		[self.zAttributedText drawInRect:rect withLineBreakMode:self.lineBreakMode alignment:self.textAlignment numberOfLines:self.numberOfLines];
 	}
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds limitedToNumberOfLines:(NSInteger)numberOfLines {
-	if (self.zFont == NULL && self.attributedText == nil) {
+	if (self.zFont == NULL && self.zAttributedText == nil) {
 		return [super textRectForBounds:bounds limitedToNumberOfLines:numberOfLines];
 	}
 	
@@ -160,7 +160,7 @@
 
 - (void)dealloc {
 	[zFont release];
-	[attributedText release];
+	[zAttributedText release];
 	[super dealloc];
 }
 @end
