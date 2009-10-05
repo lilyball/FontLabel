@@ -447,6 +447,8 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 	
 	READ_GLYPHS();
 	
+	NSCharacterSet *alphaCharset = [NSCharacterSet alphanumericCharacterSet];
+	
 	// scan left-to-right looking for newlines or until we hit the width constraint
 	// When we hit a wrapping point, calculate truncation as follows:
 	// If we have room to draw at least one more character on the next line, no truncation
@@ -474,7 +476,8 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 			NSUInteger glyphIndex;
 			NSUInteger currentRunIdx;
 			CGSize lineSize;
-		} lastSpaceCache = {0};
+		} lastWrapCache = {0};
+		BOOL inAlpha = NO; // used for calculating wrap points
 		
 		BOOL finishLine = NO;
 		for (;idx <= len && !finishLine;) {
@@ -524,15 +527,15 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 						lastLine = YES;
 					}
 					// walk backwards if wrapping is necessary
-					if (lastSpaceCache.index > indexCache.index && lineBreakMode != UILineBreakModeCharacterWrap &&
+					if (lastWrapCache.index > indexCache.index && lineBreakMode != UILineBreakModeCharacterWrap &&
 						(!lastLine || lineBreakMode != UILineBreakModeClip)) {
 						// we're doing some sort of word wrapping
-						idx = lastSpaceCache.index;
-						lineSize = lastSpaceCache.lineSize;
+						idx = lastWrapCache.index;
+						lineSize = lastWrapCache.lineSize;
 						if (!lastLine) {
 							// re-check if this is the last line
-							if (lastSpaceCache.currentRunIdx != currentRunIdx) {
-								currentRunIdx = lastSpaceCache.currentRunIdx;
+							if (lastWrapCache.currentRunIdx != currentRunIdx) {
+								currentRunIdx = lastWrapCache.currentRunIdx;
 								READ_RUN();
 								READ_GLYPHS();
 							}
@@ -540,7 +543,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 								lastLine = YES;
 							}
 						}
-						glyphIdx = lastSpaceCache.glyphIndex;
+						glyphIdx = lastWrapCache.glyphIndex;
 						// skip any spaces
 						for (NSUInteger j = idx; j < len && characters[j] == (unichar)' '; j++) {
 							skipCount++;
@@ -671,8 +674,20 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 				glyphIdx += skipCount;
 				lineCount++;
 			} else {
+				// Mark a wrap point before spaces and after any stretch of non-alpha characters
+				BOOL markWrap = NO;
 				if (characters[idx] == (unichar)' ') {
-					lastSpaceCache = (__typeof__(lastSpaceCache)){
+					markWrap = YES;
+				} else if ([alphaCharset characterIsMember:characters[idx]]) {
+					if (!inAlpha) {
+						markWrap = YES;
+						inAlpha = YES;
+					}
+				} else {
+					inAlpha = NO;
+				}
+				if (markWrap) {
+					lastWrapCache = (__typeof__(lastWrapCache)){
 						.index = idx,
 						.glyphIndex = glyphIdx,
 						.currentRunIdx = currentRunIdx,
