@@ -69,8 +69,6 @@ The following properties are ignored:
 
 * enabled
 * font (use zFont instead)
-* highlighted
-* highlightedTextColor
 * shadowColor
 * shadowOffset
 

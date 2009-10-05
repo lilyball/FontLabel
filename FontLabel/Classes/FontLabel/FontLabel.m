@@ -83,7 +83,11 @@
 	
 	if (self.zAttributedText == nil) {
 		// this method is documented as setting the text color for us, but that doesn't appear to be the case
-		[self.textColor setFill];
+		if (self.highlighted) {
+			[(self.highlightedTextColor ?: [UIColor whiteColor]) setFill];
+		} else {
+			[(self.textColor ?: [UIColor blackColor]) setFill];
+		}
 		
 		ZFont *actualFont = self.zFont;
 		CGSize origSize = rect.size;
