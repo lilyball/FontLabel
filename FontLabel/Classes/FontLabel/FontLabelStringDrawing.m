@@ -413,6 +413,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 			a = b;
 		}
 		maxRunLength = MAX(maxRunLength, len - a.index);
+		maxRunLength++; // for a potential ellipsis
 		glyphs = (CGGlyph *)malloc(sizeof(CGGlyph) * maxRunLength);
 		advances = (CGFloat *)malloc(sizeof(CGFloat) * maxRunLength);
 	}
@@ -559,12 +560,17 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 							idx--;
 						}
 						if (idx < currentRun.index) {
+							ZFont *oldFont = currentFont;
 							do {
 								currentRunIdx--;
 								READ_RUN();
 							} while (idx < currentRun.index);
 							READ_GLYPHS();
 							glyphIdx = glyphCount-1;
+							if (oldFont != currentFont) {
+								mapCharactersToGlyphsInFont(currentTable, &ellipsis, 1, &ellipsisGlyph, NULL);
+								mapGlyphsToAdvancesInFont(currentFont, 1, &ellipsisGlyph, &ellipsisWidth);
+							}
 						} else {
 							glyphIdx--;
 						}
