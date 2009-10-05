@@ -404,7 +404,11 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 	// it fits (vertically) within the size constraint. If not, truncate this line.
 	// When we draw, iterate over the attribute runs for this line and draw each run separately
 	BOOL lastLine = NO; // used to indicate truncation and to stop the iterating
+	NSUInteger lineCount = 1;
 	while (idx < len && !lastLine) {
+		if (maxLines > 0 && lineCount == maxLines) {
+			lastLine = YES;
+		}
 		// scan left-to-right
 		struct {
 			NSUInteger index;
@@ -589,6 +593,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 				}
 				idx += skipCount;
 				glyphIdx += skipCount;
+				lineCount++;
 			} else {
 				if (characters[idx] == (unichar)' ') {
 					lastSpaceCache = (__typeof__(lastSpaceCache)){
