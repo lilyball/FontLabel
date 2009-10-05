@@ -34,8 +34,8 @@
 #define kUnicodeLowSurrogateEnd 0xDFFF
 #define kUnicodeLowSurrogateMask kUnicodeLowSurrogateStart
 #define kUnicodeSurrogateTypeMask 0xFC00
-#define UnicharIsHighSurrogate(c) (c & kUnicodeSurrogateTypeMask == kUnicodeHighSurrogateMask)
-#define UnicharIsLowSurrogate(c) (c & kUnicodeSurrogateTypeMask == kUnicodeLowSurrogateMask)
+#define UnicharIsHighSurrogate(c) ((c & kUnicodeSurrogateTypeMask) == kUnicodeHighSurrogateMask)
+#define UnicharIsLowSurrogate(c) ((c & kUnicodeSurrogateTypeMask) == kUnicodeLowSurrogateMask)
 #define ConvertSurrogatePairToUTF32(high, low) ((UInt32)((high - 0xD800) * 0x400 + (low - 0xDC00) + 0x10000))
 
 typedef enum {
@@ -145,7 +145,7 @@ static fontTable *readFontTableFromCGFont(CGFontRef font) {
 				UInt32 offset = OSReadBigInt32(encodingSubtable, 4);
 				const UInt8 *subtable = &bytes[offset];
 				UInt16 format = OSReadBigInt16(subtable, 0);
-				for (int i = 0; i < supportedFormatsCount; i++) {
+				for (size_t i = 0; i < supportedFormatsCount; i++) {
 					if (format == supportedFormats[i]) {
 						if (format >= 8) {
 							// the version is a fixed-point
@@ -476,7 +476,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 			NSUInteger glyphIndex;
 			NSUInteger currentRunIdx;
 			CGSize lineSize;
-		} lastWrapCache = {0};
+		} lastWrapCache = {0, 0, 0, CGSizeZero};
 		BOOL inAlpha = NO; // used for calculating wrap points
 		
 		BOOL finishLine = NO;
