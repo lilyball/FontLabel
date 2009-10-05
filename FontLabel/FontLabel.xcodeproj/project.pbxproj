@@ -18,7 +18,10 @@
 		433B505F0FB50365000B10FB /* FontLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 433B505E0FB50365000B10FB /* FontLabel.m */; };
 		433B50630FB5036D000B10FB /* FontLabelStringDrawing.m in Sources */ = {isa = PBXBuildFile; fileRef = 433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */; };
 		433B50660FB50375000B10FB /* FontManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 433B50650FB50375000B10FB /* FontManager.m */; };
+		435E454F106981FA00F86F0E /* ZAttributedString.m in Sources */ = {isa = PBXBuildFile; fileRef = 435E454E106981FA00F86F0E /* ZAttributedString.m */; };
 		437BC2950FFD2E21001C57E9 /* ZFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 437BC2940FFD2E21001C57E9 /* ZFont.m */; };
+		43B413A6106E793F00A2DCF3 /* ZAttributedString.m in Sources */ = {isa = PBXBuildFile; fileRef = 435E454E106981FA00F86F0E /* ZAttributedString.m */; };
+		43B413A8106E795F00A2DCF3 /* ZAttributedStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 43B413A7106E795F00A2DCF3 /* ZAttributedStringTest.m */; };
 		902B00900FAA484500BDEBD0 /* A Damn Mess.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 902B008A0FAA484500BDEBD0 /* A Damn Mess.ttf */; };
 		902B00910FAA484500BDEBD0 /* Abberancy.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 902B008B0FAA484500BDEBD0 /* Abberancy.ttf */; };
 		902B00920FAA484500BDEBD0 /* Abduction.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 902B008C0FAA484500BDEBD0 /* Abduction.ttf */; };
@@ -46,8 +49,14 @@
 		433B50620FB5036D000B10FB /* FontLabelStringDrawing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontLabelStringDrawing.m; sourceTree = "<group>"; };
 		433B50640FB50375000B10FB /* FontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontManager.h; sourceTree = "<group>"; };
 		433B50650FB50375000B10FB /* FontManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FontManager.m; sourceTree = "<group>"; };
+		435E454D106981FA00F86F0E /* ZAttributedString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZAttributedString.h; sourceTree = "<group>"; };
+		435E454E106981FA00F86F0E /* ZAttributedString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZAttributedString.m; sourceTree = "<group>"; };
+		435E46BB106AD90600F86F0E /* ZAttributedStringPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZAttributedStringPrivate.h; sourceTree = "<group>"; };
 		437BC2930FFD2E21001C57E9 /* ZFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZFont.h; sourceTree = "<group>"; };
 		437BC2940FFD2E21001C57E9 /* ZFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZFont.m; sourceTree = "<group>"; };
+		43B4139B106E790600A2DCF3 /* Unit Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Unit Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		43B4139C106E790600A2DCF3 /* Unit Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Unit Tests-Info.plist"; sourceTree = "<group>"; };
+		43B413A7106E795F00A2DCF3 /* ZAttributedStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZAttributedStringTest.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		902B008A0FAA484500BDEBD0 /* A Damn Mess.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "A Damn Mess.ttf"; sourceTree = "<group>"; };
 		902B008B0FAA484500BDEBD0 /* Abberancy.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Abberancy.ttf; sourceTree = "<group>"; };
@@ -65,6 +74,13 @@
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43B41398106E790600A2DCF3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				1D6058910D05DD3D006BFB54 /* FontLabel.app */,
+				43B4139B106E790600A2DCF3 /* Unit Tests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -97,8 +114,10 @@
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
+				43B41391106E78E100A2DCF3 /* UnitTests */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
+				43B4139C106E790600A2DCF3 /* Unit Tests-Info.plist */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -149,8 +168,19 @@
 				433B50650FB50375000B10FB /* FontManager.m */,
 				437BC2930FFD2E21001C57E9 /* ZFont.h */,
 				437BC2940FFD2E21001C57E9 /* ZFont.m */,
+				435E454D106981FA00F86F0E /* ZAttributedString.h */,
+				435E46BB106AD90600F86F0E /* ZAttributedStringPrivate.h */,
+				435E454E106981FA00F86F0E /* ZAttributedString.m */,
 			);
 			path = FontLabel;
+			sourceTree = "<group>";
+		};
+		43B41391106E78E100A2DCF3 /* UnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				43B413A7106E795F00A2DCF3 /* ZAttributedStringTest.m */,
+			);
+			path = UnitTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -173,6 +203,24 @@
 			productReference = 1D6058910D05DD3D006BFB54 /* FontLabel.app */;
 			productType = "com.apple.product-type.application";
 		};
+		43B4139A106E790600A2DCF3 /* Unit Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43B4139F106E790700A2DCF3 /* Build configuration list for PBXNativeTarget "Unit Tests" */;
+			buildPhases = (
+				43B41396106E790600A2DCF3 /* Resources */,
+				43B41397106E790600A2DCF3 /* Sources */,
+				43B41398106E790600A2DCF3 /* Frameworks */,
+				43B41399106E790600A2DCF3 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Unit Tests";
+			productName = "Unit Tests";
+			productReference = 43B4139B106E790600A2DCF3 /* Unit Tests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -186,6 +234,7 @@
 			projectRoot = "";
 			targets = (
 				1D6058900D05DD3D006BFB54 /* FontLabel */,
+				43B4139A106E790600A2DCF3 /* Unit Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -206,7 +255,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		43B41396106E790600A2DCF3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		43B41399106E790600A2DCF3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1D60588E0D05DD3D006BFB54 /* Sources */ = {
@@ -220,6 +292,16 @@
 				433B50630FB5036D000B10FB /* FontLabelStringDrawing.m in Sources */,
 				433B50660FB50375000B10FB /* FontManager.m in Sources */,
 				437BC2950FFD2E21001C57E9 /* ZFont.m in Sources */,
+				435E454F106981FA00F86F0E /* ZAttributedString.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43B41397106E790600A2DCF3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43B413A6106E793F00A2DCF3 /* ZAttributedString.m in Sources */,
+				43B413A8106E795F00A2DCF3 /* ZAttributedStringTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +333,62 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = Info.plist;
 				PRODUCT_NAME = FontLabel;
+			};
+			name = Release;
+		};
+		43B4139D106E790700A2DCF3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INFOPLIST_FILE = "Unit Tests-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					SenTestingKit,
+					"-framework",
+					UIKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "Unit Tests";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		43B4139E106E790700A2DCF3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				INFOPLIST_FILE = "Unit Tests-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					SenTestingKit,
+					"-framework",
+					UIKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = "Unit Tests";
+				WRAPPER_EXTENSION = octest;
+				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -289,6 +427,15 @@
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
 				1D6058950D05DD3E006BFB54 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		43B4139F106E790700A2DCF3 /* Build configuration list for PBXNativeTarget "Unit Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43B4139D106E790700A2DCF3 /* Debug */,
+				43B4139E106E790700A2DCF3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
