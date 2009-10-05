@@ -384,6 +384,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 			NSRange newlineRange = [string rangeOfCharacterFromSet:charset options:0 range:range];
 			if (newlineRange.location == NSNotFound) {
 				[string getCharacters:&characters[cIdx] range:range];
+				cIdx += range.length;
 				break;
 			} else {
 				NSUInteger delta = newlineRange.location - range.location;
@@ -395,8 +396,15 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 				cIdx++;
 				delta += newlineRange.length;
 				range.location += delta, range.length -= delta;
+				if (newlineRange.length == 1 && range.length >= 1 &&
+					[string characterAtIndex:newlineRange.location] == (unichar)'\r' &&
+					[string characterAtIndex:range.location] == (unichar)'\n') {
+					// CRLF sequence, skip the LF
+					range.location += 1, range.length -= 1;
+				}
 			}
 		}
+		len = cIdx;
 	} else {
 		[string getCharacters:characters range:NSMakeRange(0, len)];
 	}
