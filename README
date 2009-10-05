@@ -2,15 +2,15 @@ Copyright © 2009 Zynga Game Networks.
 
 All .ttf files in this project are from http://www.webpagepublicity.com/free-fonts.html
 
-This project provides 4 classes which are used to render text in custom fonts.
+This project provides 4 classes and 2 categories which are used to render text in custom fonts.
 
 ZFont
 -----
 
 ZFont is the equivalent of UIFont but for arbitrary fonts.
 
-Note that UIFont reports a larger ascender for the system font (Helvetica) than ZFont does.
-I suspect this is hard-coded behavior in UIFont.
+Note that UIFont reports a larger ascender for some fonts (including Helvetica) than ZFont does.
+I do not know why this occurs. ZFont uses CoreGraphics to determine this information.
 
 FontManager
 -----------
@@ -38,10 +38,23 @@ for drawing text in a given CGFontRef. It differs in three key areas from UIStri
   Notably, Clip and Head/Middle truncation are not supported.
 * UIFont reports a larger ascender for the system font (Helvetica) than ZFont.
   I cannot figure out why this is. This means UIStringDrawing/UILabel will size any text
-  rendered in Helvetica with a taller bounding box than FontLabelStringDrawing. I have not seen
-  this behavior on any other fonts. I suspect it is a hard-coded edge case in UIFont.
+  rendered in Helvetica with a taller bounding box than FontLabelStringDrawing.
 
 Usage should be the same as the corresponding methods from UIStringDrawing.
+
+ZAttributedString/ZMutableAttributedString
+------------------------------------------
+
+ZAttributedString is an implementation of an attributed string, patterned after
+NSAttributedString from desktop Cocoa. The primary difference is ZMutableAttributedString
+does not offer a -mutableString method.
+
+ZAttributedString (ZAttributedStringDrawing)
+--------------------------------------------
+
+This category mimics NSString (FontLabelStringDrawing) but provides drawing primitives
+for ZAttributedString instead. They should all work like their FontLabelStringDrawing
+counterparts.
 
 FontLabel
 ---------
@@ -49,7 +62,8 @@ FontLabel
 This is a subclass of UILabel that draws text using a ZFont instead
 of a UIFont. It uses FontLabelStringDrawing internally to do the heavy lifting.
 Wrapping, tail truncation, and `-sizeToFit` work, as do the standard
-`textAlignment`/`textColor` properties.
+`textAlignment`/`textColor` properties. A new `zAttributedText` property
+has been added that allows for attributed string rendering.
 
 The following properties are ignored:
 
@@ -61,5 +75,4 @@ The following properties are ignored:
 * shadowOffset
 
 ## TODO
-- add support for markup
 - support more properties from UILabel
