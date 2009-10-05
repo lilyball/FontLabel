@@ -524,7 +524,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 						lastLine = YES;
 					}
 					// walk backwards if wrapping is necessary
-					if (lastSpaceCache.index > 0 && lineBreakMode != UILineBreakModeCharacterWrap &&
+					if (lastSpaceCache.index > indexCache.index && lineBreakMode != UILineBreakModeCharacterWrap &&
 						(!lastLine || lineBreakMode != UILineBreakModeClip)) {
 						// we're doing some sort of word wrapping
 						idx = lastSpaceCache.index;
