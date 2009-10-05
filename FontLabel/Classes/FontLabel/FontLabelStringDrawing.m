@@ -509,7 +509,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 						lineSize.width -= advances[glyphIdx];
 					}
 					// skip any spaces before truncating
-					while ((idx - indexCache.index) > 1 && characters[idx] == (unichar)' ') {
+					while ((idx - indexCache.index) > 1 && characters[idx-1] == (unichar)' ') {
 						idx--;
 						if (idx < currentRun.index) {
 							currentRunIdx--;
