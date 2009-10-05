@@ -541,6 +541,10 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 							}
 						}
 						glyphIdx = lastSpaceCache.glyphIndex;
+						// skip any spaces
+						for (NSUInteger j = idx; j < len && characters[j] == (unichar)' '; j++) {
+							skipCount++;
+						}
 					}
 				}
 			}
