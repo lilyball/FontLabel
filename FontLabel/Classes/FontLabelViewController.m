@@ -33,7 +33,7 @@
 	
 	[self.view setBackgroundColor:[UIColor blackColor]];
 	
-	FontLabel *label = [[FontLabel alloc] initWithFrame:CGRectMake(10, 50, 0, 0) fontName:@"Paint Boy" pointSize:40.0f];
+	FontLabel *label = [[FontLabel alloc] initWithFrame:CGRectMake(10, 10, 0, 0) fontName:@"Paint Boy" pointSize:40.0f];
 	label.textColor = [UIColor magentaColor];
 	label.text = @"lorem ipsum";
 	[label sizeToFit];
@@ -42,56 +42,44 @@
 	[self.view addSubview:label];
 	[label release];
 	
-	FontLabel *label2 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label.frame) + 10, 0, 0)
-													  fontName:@"Scissor Cuts" pointSize:24.0f];
-	label2.textColor = [UIColor greenColor];
-	label2.text = @"commanda hearts opensource!";
-	[label2 sizeToFit];
-	label2.backgroundColor = nil;
-	label2.opaque = NO;
+	FontLabel *label2 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label.frame) + 10, 300, 100)
+												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
+	label2.textColor = [UIColor blackColor];
+	label2.text = @"centered in a frame.\nthis is line two. Long lines should wrap, possibly multiple times. Really long lines should truncate with an ellipsis.";
+	label2.textAlignment = UITextAlignmentCenter;
+	label2.lineBreakMode = UILineBreakModeTailTruncation;
+	label2.backgroundColor = [UIColor greenColor];
+	label2.numberOfLines = 0;
 	[self.view addSubview:label2];
 	[label2 release];
 	
-	FontLabel *label3 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label2.frame) + 10, 0, 0)
-												  fontName:@"Abberancy" pointSize:30.0f];
-	label3.textColor = [UIColor orangeColor];
-	label3.text = @"Troy RULEZ!";
-	[label3 sizeToFit];
-	label3.backgroundColor = nil;
-	label3.opaque = NO;
+	FontLabel *label3 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label2.frame) + 10, 300, 100)
+												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
+	label3.textColor = [UIColor magentaColor];
+	label3.text = @"right justified.\nThis is line two. Long lines should wrap";
+	label3.textAlignment = UITextAlignmentRight;
+	label3.backgroundColor = [UIColor blueColor];
+	label3.numberOfLines = 0;
 	[self.view addSubview:label3];
 	[label3 release];
 	
-	FontLabel *label4 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label3.frame) + 10, 0, 0)
-												  fontName:@"Schwarzwald Regular" pointSize:30.0f];
-	label4.textColor = [UIColor yellowColor];
-	label4.text = @"your name here";
-	[label4 sizeToFit];
-	label4.backgroundColor = nil;
-	label4.opaque = NO;
+	FontLabel *label4 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label3.frame) + 10, 300, 100)];
+	ZMutableAttributedString *str = [[ZMutableAttributedString alloc] initWithString:@"This is an attributed string.\nIt even supports underline."
+																		  attributes:[NSDictionary dictionaryWithObjectsAndKeys:
+																					  [[FontManager sharedManager] zFontWithName:@"Schwarzwald Regular" pointSize:20],
+																					  ZFontAttributeName,
+																					  nil]];
+	[str addAttribute:ZFontAttributeName value:[[FontManager sharedManager] zFontWithName:@"Abberancy" pointSize:30] range:NSMakeRange(11, 10)];
+	[str addAttribute:ZForegroundColorAttributeName value:[UIColor yellowColor] range:NSMakeRange(11, 10)];
+	[str addAttribute:ZBackgroundColorAttributeName value:[UIColor blueColor] range:NSMakeRange(11, 10)];
+	[str addAttribute:ZUnderlineStyleAttributeName value:[NSNumber numberWithInt:ZUnderlineStyleSingle] range:NSMakeRange(47, 9)];
+	label4.attributedText = str;
+	[str release];
+	label4.textAlignment = UITextAlignmentLeft;
+	label4.backgroundColor = [UIColor lightGrayColor];
+	label4.numberOfLines = 0;
 	[self.view addSubview:label4];
 	[label4 release];
-	
-	FontLabel *label5 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label4.frame) + 10, 300, 100)
-												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
-	label5.textColor = [UIColor blackColor];
-	label5.text = @"centered in a frame.\nthis is line two. Long lines should wrap, possibly multiple times. Really long lines should truncate with an ellipsis.";
-	label5.textAlignment = UITextAlignmentCenter;
-	label5.lineBreakMode = UILineBreakModeTailTruncation;
-	label5.backgroundColor = [UIColor greenColor];
-	label5.numberOfLines = 0;
-	[self.view addSubview:label5];
-	[label5 release];
-	
-	FontLabel *label6 = [[FontLabel alloc] initWithFrame:CGRectMake(10, CGRectGetMaxY(label5.frame) + 10, 300, 100)
-												  fontName:@"Schwarzwald Regular" pointSize:20.0f];
-	label6.textColor = [UIColor magentaColor];
-	label6.text = @"right justified.\nThis is line two. Long lines should wrap";
-	label6.textAlignment = UITextAlignmentRight;
-	label6.backgroundColor = [UIColor blueColor];
-	label6.numberOfLines = 0;
-	[self.view addSubview:label6];
-	[label6 release];
 }
 
 - (void)dealloc {
