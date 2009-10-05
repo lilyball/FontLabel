@@ -28,10 +28,13 @@
 
 #define kUnicodeHighSurrogateStart 0xD800
 #define kUnicodeHighSurrogateEnd 0xDBFF
+#define kUnicodeHighSurrogateMask kUnicodeHighSurrogateStart
 #define kUnicodeLowSurrogateStart 0xDC00
 #define kUnicodeLowSurrogateEnd 0xDFFF
-#define UnicharIsHighSurrogate(c) (c >= kUnicodeHighSurrogateStart && c <= kUnicodeHighSurrogateEnd)
-#define UnicharIsLowSurrogate(c) (c >= kUnicodeLowSurrogateStart && c <= kUnicodeLowSurrogateEnd)
+#define kUnicodeLowSurrogateMask kUnicodeLowSurrogateStart
+#define kUnicodeSurrogateTypeMask 0xFC00
+#define UnicharIsHighSurrogate(c) (c & kUnicodeSurrogateTypeMask == kUnicodeHighSurrogateMask)
+#define UnicharIsLowSurrogate(c) (c & kUnicodeSurrogateTypeMask == kUnicodeLowSurrogateMask)
 #define ConvertSurrogatePairToUTF32(high, low) ((UInt32)((high - 0xD800) * 0x400 + (low - 0xDC00) + 0x10000))
 
 typedef enum {
@@ -167,10 +170,10 @@ static fontTable *readFontTableFromCGFont(CGFontRef font) {
 static void mapCharactersToGlyphsInFont(const fontTable *table, unichar characters[], size_t charLen, CGGlyph outGlyphs[], size_t *outGlyphLen) {
 	if (table != NULL) {
 		NSUInteger j = 0;
-		for (NSUInteger i = 0; i < charLen; i++, j++) {
-			unichar c = characters[i];
-			switch (table->format) {
-				case kFontTableFormat4: {
+		switch (table->format) {
+			case kFontTableFormat4: {
+				for (NSUInteger i = 0; i < charLen; i++, j++) {
+					unichar c = characters[i];
 					UInt16 segOffset;
 					BOOL foundSegment = NO;
 					for (segOffset = 0; segOffset < table->cmap.format4.segCountX2; segOffset += 2) {
@@ -201,9 +204,13 @@ static void mapCharactersToGlyphsInFont(const fontTable *table, unichar characte
 							}
 						}
 					}
-					break;
 				}
-				case kFontTableFormat12: {
+				break;
+			}
+			case kFontTableFormat12: {
+				UInt32 lastSegment = UINT32_MAX;
+				for (NSUInteger i = 0; i < charLen; i++, j++) {
+					unichar c = characters[i];
 					UInt32 c32 = c;
 					if (UnicharIsHighSurrogate(c)) {
 						if (i+1 < charLen) { // do we have another character after this one?
@@ -214,19 +221,63 @@ static void mapCharactersToGlyphsInFont(const fontTable *table, unichar characte
 							}
 						}
 					}
-					for (UInt32 idx = 0;; idx++) {
-						if (idx >= table->cmap.format12.nGroups) {
-							outGlyphs[j] = 0;
-							break;
+					// Start the heuristic search
+					// If this is an ASCII char, just do a linear search
+					// Otherwise do a hinted, modified binary search
+					// Start the first pivot at the last range found
+					// And when moving the pivot, limit the movement by increasing
+					// powers of two. This should help with locality
+					__typeof__(table->cmap.format12.groups[0]) *foundGroup = NULL;
+					if (c32 <= 0x7F) {
+						// ASCII
+						for (UInt32 idx = 0; idx < table->cmap.format12.nGroups; idx++) {
+							__typeof__(table->cmap.format12.groups[idx]) *group = &table->cmap.format12.groups[idx];
+							if (c32 < OSSwapBigToHostInt32(group->startCharCode)) {
+								// we've fallen into a hole
+								break;
+							} else if (c32 <= OSSwapBigToHostInt32(group->endCharCode)) {
+								// this is the range
+								foundGroup = group;
+								break;
+							}
 						}
-						__typeof__(table->cmap.format12.groups[idx]) group = table->cmap.format12.groups[idx];
-						if (c32 >= OSSwapBigToHostInt32(group.startCharCode) && c32 <= OSSwapBigToHostInt32(group.endCharCode)) {
-							outGlyphs[j] = (CGGlyph)(OSSwapBigToHostInt32(group.startGlyphCode) + (c32 - OSSwapBigToHostInt32(group.startCharCode)));
-							break;
+					} else {
+						// heuristic search
+						UInt32 maxJump = (lastSegment == UINT32_MAX ? UINT32_MAX / 2 : 8);
+						UInt32 lowIdx = 0, highIdx = table->cmap.format12.nGroups; // highIdx is the first invalid idx
+						UInt32 pivot = (lastSegment == UINT32_MAX ? lowIdx + (highIdx - lowIdx) / 2 : lastSegment);
+						while (highIdx > lowIdx) {
+							__typeof__(table->cmap.format12.groups[pivot]) *group = &table->cmap.format12.groups[pivot];
+							if (c32 < OSSwapBigToHostInt32(group->startCharCode)) {
+								highIdx = pivot;
+							} else if (c32 > OSSwapBigToHostInt32(group->endCharCode)) {
+								lowIdx = pivot + 1;
+							} else {
+								// we've hit the range
+								foundGroup = group;
+								break;
+							}
+							if (highIdx - lowIdx > maxJump * 2) {
+								if (highIdx == pivot) {
+									pivot -= maxJump;
+								} else {
+									pivot += maxJump;
+								}
+								maxJump *= 2;
+							} else {
+								pivot = lowIdx + (highIdx - lowIdx) / 2;
+							}
 						}
+						if (foundGroup != NULL) lastSegment = pivot;
 					}
-					break;
+					if (foundGroup == NULL) {
+						outGlyphs[j] = 0;
+					} else {
+						outGlyphs[j] = (CGGlyph)(OSSwapBigToHostInt32(foundGroup->startGlyphCode) +
+												 (c32 - OSSwapBigToHostInt32(foundGroup->startCharCode)));
+					}
 				}
+				break;
 			}
 		}
 		if (outGlyphLen != NULL) *outGlyphLen = j;
@@ -302,7 +353,7 @@ static CGSize drawOrSizeTextConstrainedToSize(BOOL performDraw, NSString *string
 		}
 		len = idx;
 	}
-		
+	
 	fontTable *table = readFontTableFromCGFont(font.cgFont);
 	CGSize retVal = CGSizeZero;
 	CGFloat ascender = font.ascender;
