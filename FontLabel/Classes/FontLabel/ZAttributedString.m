@@ -67,7 +67,7 @@
 }
 
 - (id)mutableCopyWithZone:(NSZone *)zone {
-	return [[ZMutableAttributedString allocWithZone:zone] initWithAttributedString:self];
+	return [(ZMutableAttributedString *)[ZMutableAttributedString allocWithZone:zone] initWithAttributedString:self];
 }
 
 - (NSUInteger)length {
@@ -349,7 +349,7 @@
 
 @implementation ZMutableAttributedString
 - (id)copyWithZone:(NSZone *)zone {
-	return [[ZAttributedString allocWithZone:zone] initWithAttributedString:self];
+	return [(ZAttributedString *)[ZAttributedString allocWithZone:zone] initWithAttributedString:self];
 }
 
 - (void)addAttribute:(NSString *)name value:(id)value range:(NSRange)range {
