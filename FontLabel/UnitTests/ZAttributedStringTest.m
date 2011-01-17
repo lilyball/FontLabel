@@ -24,7 +24,7 @@
 
 - (void)testInitWithAttributedString {
 	ZAttributedString *str = [[[ZAttributedString alloc] initWithString:@"test"] autorelease];
-	STAssertEqualObjects(str, [[[ZAttributedString alloc] initWithAttributedString:str] autorelease], @"- -initWithAttributedString should return an equal object");
+	STAssertEqualObjects(str, [[(ZAttributedString *)[ZAttributedString alloc] initWithAttributedString:str] autorelease], @"- -initWithAttributedString should return an equal object");
 }
 
 - (void)testInitWithAttributedStringAttributes {
