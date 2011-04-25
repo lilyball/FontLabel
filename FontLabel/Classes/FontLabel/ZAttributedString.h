@@ -64,6 +64,7 @@ extern NSString * const ZFontAttributeName;
 extern NSString * const ZForegroundColorAttributeName;
 extern NSString * const ZBackgroundColorAttributeName;
 extern NSString * const ZUnderlineStyleAttributeName;
+extern NSString * const ZStrikethroughStyleAttributeName;
 
 enum {
 	ZUnderlineStyleNone = 0x00,

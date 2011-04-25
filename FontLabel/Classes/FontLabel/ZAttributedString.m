@@ -594,3 +594,4 @@ NSString * const ZFontAttributeName = @"ZFontAttributeName";
 NSString * const ZForegroundColorAttributeName = @"ZForegroundColorAttributeName";
 NSString * const ZBackgroundColorAttributeName = @"ZBackgroundColorAttributeName";
 NSString * const ZUnderlineStyleAttributeName = @"ZUnderlineStyleAttributeName";
+NSString * const ZStrikethroughStyleAttributeName = @"ZStrikethroughStyleAttributeName";

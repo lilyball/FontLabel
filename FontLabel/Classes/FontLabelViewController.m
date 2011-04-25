@@ -72,6 +72,7 @@
 	[str addAttribute:ZFontAttributeName value:[[FontManager sharedManager] zFontWithName:@"Abberancy" pointSize:30] range:NSMakeRange(11, 10)];
 	[str addAttribute:ZForegroundColorAttributeName value:[UIColor yellowColor] range:NSMakeRange(11, 10)];
 	[str addAttribute:ZBackgroundColorAttributeName value:[UIColor blueColor] range:NSMakeRange(11, 10)];
+	[str addAttribute:ZStrikethroughStyleAttributeName value:[NSNumber numberWithInt:ZUnderlineStyleSingle] range:NSMakeRange(11, 10)];
 	[str addAttribute:ZUnderlineStyleAttributeName value:[NSNumber numberWithInt:ZUnderlineStyleSingle] range:NSMakeRange(47, 9)];
 	label4.zAttributedText = str;
 	[str release];
