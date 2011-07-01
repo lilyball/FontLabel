@@ -889,3 +889,17 @@ static CGSize drawTextInRect(CGRect rect, NSString *text, NSArray *attributes, U
 	return drawTextInRect(rect, self.string, self.attributes, lineBreakMode, alignment, numberOfLines, NO);
 }
 @end
+
+// Hack for working around linker bug that causes object files with only categories to 
+// not be linked at runtime when built from a static library
+// (i.e. at runtime, none of these categories would actually be present)
+// See also:
+// http://developer.apple.com/library/mac/#qa/qa1490/_index.html
+// http://blog.binaryfinery.com/universal-static-library-problem-in-iphone-sd
+// http://snipplr.com/view/50425/iphone-make-categories-defined-inside-libraries-actually-work/
+@interface FontLabelStringDrawing_FIX_CATEGORY_BUG 
+@end
+@implementation FontLabelStringDrawing_FIX_CATEGORY_BUG
+@end
+
+
