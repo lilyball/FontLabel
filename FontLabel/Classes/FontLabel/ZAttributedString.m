@@ -283,7 +283,7 @@
 	} else if (NSMaxRange(rangeLimit) > [_buffer length]) {
 		@throw [NSException exceptionWithName:NSRangeException reason:@"rangeLimit beyond range of attributed string" userInfo:nil];
 	}
-	NSUInteger runIndex = [self indexOfEffectiveAttributeRunForIndex:index];
+	NSInteger runIndex = [self indexOfEffectiveAttributeRunForIndex:index];
 	ZAttributeRun *run = [_attributes objectAtIndex:runIndex];
 	if (aRange != NULL) {
 		if (attributeName != nil) {
@@ -327,7 +327,7 @@
 			// as we already guarantee each run has unique attributes.
 			// just make sure to clip the range to the rangeLimit
 			aRange->location = MAX(run.index, rangeLimit.location);
-			ZAttributeRun *endRun = (runIndex+1 < [_attributes count] ? [_attributes objectAtIndex:runIndex+1] : nil);
+			ZAttributeRun *endRun = (runIndex+1 < (NSInteger)[_attributes count] ? [_attributes objectAtIndex:runIndex+1] : nil);
 			aRange->length = MIN((endRun ? endRun.index : [_buffer length]), NSMaxRange(rangeLimit)) - aRange->location;
 		}
 	}
@@ -459,7 +459,7 @@
 	if (((ZAttributeRun *)[_attributes lastObject]).index < NSMaxRange(range)) {
 		NSRange subrange = NSMakeRange(first, [_attributes count] - first);
 		if (NSMaxRange(range) < [_buffer length]) {
-			ZAttributeRun *newRun = [[ZAttributeRun alloc] initWithIndex:NSMaxRange(range) attributes:[[_attributes lastObject] attributes]];
+			ZAttributeRun *newRun = [[ZAttributeRun alloc] initWithIndex:NSMaxRange(range) attributes:[(ZAttributeRun *)[_attributes lastObject] attributes]];
 			[_attributes addObject:newRun];
 			[newRun release];
 		}
@@ -483,7 +483,7 @@
 		if ([[_attributes objectAtIndex:firstAfter] index] > NSMaxRange(range)) {
 			// the first after is too far after, insert another run!
 			ZAttributeRun *newRun = [[ZAttributeRun alloc] initWithIndex:NSMaxRange(range)
-															  attributes:[[_attributes objectAtIndex:firstAfter-1] attributes]];
+															  attributes:[(ZAttributeRun *)[_attributes objectAtIndex:firstAfter-1] attributes]];
 			[_attributes insertObject:newRun atIndex:firstAfter];
 			[newRun release];
 		}
