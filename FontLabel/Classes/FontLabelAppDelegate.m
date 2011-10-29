@@ -38,16 +38,16 @@
 	[[FontManager sharedManager] loadFont:@"Schwarzwald Regular"];
 	[[FontManager sharedManager] loadFont:@"Scissor Cuts"];
 	
-    // Override point for customization after app launch    
-    [window addSubview:viewController.view];
-    [window makeKeyAndVisible];
+	// Override point for customization after app launch    
+	[window addSubview:viewController.view];
+	[window makeKeyAndVisible];
 }
 
 
 - (void)dealloc {
-    [viewController release];
-    [window release];
-    [super dealloc];
+	[viewController release];
+	[window release];
+	[super dealloc];
 }
 
 

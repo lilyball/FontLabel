@@ -25,8 +25,8 @@
 @class FontLabelViewController;
 
 @interface FontLabelAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    FontLabelViewController *viewController;
+	UIWindow *window;
+	FontLabelViewController *viewController;
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
